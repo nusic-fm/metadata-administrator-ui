@@ -6,19 +6,14 @@ export const checkAndSwitchConnection = async () => {
   const accounts = await provider.listAccounts();
   if (accounts.length) {
     if (
-      (window as any).ethereum?.networkVersion !==
-      import.meta.env.NEXT_PUBLIC_CHAIN_ID
+      (window as any).ethereum?.networkVersion !== import.meta.env.VITE_CHAIN_ID
     ) {
       try {
         await (window as any).ethereum.request({
           method: "wallet_switchEthereumChain",
           params: [
             {
-              chainId: ethers.hexlify(
-                ethers.toUtf8Bytes(
-                  import.meta.env.NEXT_PUBLIC_CHAIN_ID as string
-                )
-              ),
+              chainId: `0x13881`, //TODO
             },
           ],
         });

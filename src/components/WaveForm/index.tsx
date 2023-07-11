@@ -175,11 +175,12 @@ const WaveSurferPlayer = ({
     const newSectionsObj = { ...sectionsObj };
     const id = Object.keys(newSectionsObj).length;
     if (id === 0) {
+      const start = 0 + startBeatOffsetMs / 1000;
       newSectionsObj[id] = {
         id,
         name: SectionNames[id],
-        start: 0.01,
-        end: durationOfEachBarInSec as number,
+        start,
+        end: start + (durationOfEachBarInSec || 0),
         bars: 1,
         totalBars: 1,
       };
@@ -212,7 +213,7 @@ const WaveSurferPlayer = ({
       ")";
     const start = newSectionsObj[id].start;
     const end = newSectionsObj[id].end;
-    console.log(start, end);
+
     regionsWs.current.addRegion({
       id: id.toString(),
       start,
@@ -272,49 +273,58 @@ const WaveSurferPlayer = ({
   return (
     <Box mt={5}>
       <Typography variant="h6">Waveform Explorer</Typography>
-      <Box mt={4} display="flex" alignItems={"center"} flexWrap="wrap" gap={2}>
-        <Button
-          variant="contained"
-          onClick={pauseOrPlay}
-          disabled={isWaveformReady}
-          sx={{ px: 1 }}
-        >
-          {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
-          {/* {isPlaying ? "Pause" : "Play"} */}
-        </Button>
-        <Stack spacing={2} direction="row" alignItems="center" width={200}>
-          <ZoomOut color="secondary" />
-          <Slider
-            min={10}
-            max={100}
-            // value={100}
-            defaultValue={50}
-            onChange={(e, val) => {
-              wavesurfer?.zoom(val as number);
-            }}
+      <Box
+        mt={4}
+        display="flex"
+        alignItems={"center"}
+        justifyContent="space-between"
+        flexWrap="wrap"
+        gap={2}
+      >
+        <Box display="flex" alignItems={"center"} gap={2} flexWrap="wrap">
+          <Button
+            variant="contained"
+            onClick={pauseOrPlay}
+            disabled={isWaveformReady}
+            sx={{ px: 1 }}
+          >
+            {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
+            {/* {isPlaying ? "Pause" : "Play"} */}
+          </Button>
+          <Button
+            onClick={addSection}
+            color="info"
+            variant="outlined"
+            disabled={isWaveformReady || !noOfBars}
+          >
+            Add Section
+          </Button>
+        </Box>
+        <Box display="flex" alignItems={"center"} gap={2} flexWrap="wrap">
+          <FormControlLabel
+            label="Metronome"
+            control={
+              <Switch
+                checked={isMetronomePlaying}
+                onChange={() => setIsMetronomePlaying(!isMetronomePlaying)}
+                disabled={isWaveformReady}
+              />
+            }
           />
-          <ZoomIn color="secondary" />
-        </Stack>
-
-        <FormControlLabel
-          label="Metronome"
-          control={
-            <Switch
-              checked={isMetronomePlaying}
-              onChange={() => setIsMetronomePlaying(!isMetronomePlaying)}
-              disabled={isWaveformReady}
+          <Stack spacing={2} direction="row" alignItems="center" width={200}>
+            <ZoomOut color="secondary" />
+            <Slider
+              min={10}
+              max={100}
+              // value={100}
+              defaultValue={50}
+              onChange={(e, val) => {
+                wavesurfer?.zoom(val as number);
+              }}
             />
-          }
-        ></FormControlLabel>
-
-        <Button
-          onClick={addSection}
-          color="info"
-          variant="outlined"
-          disabled={isWaveformReady || !noOfBars}
-        >
-          Add Section
-        </Button>
+            <ZoomIn color="secondary" />
+          </Stack>
+        </Box>
       </Box>
       <Box mt={4}>
         {isWaveformReady && (
