@@ -1,4 +1,4 @@
-import { SectionsObj } from "../../App";
+import { SectionsObj } from "../../Metadata";
 import { ProofOfCreationMetadataObj } from "../ProofOfCreationTab";
 import Timeline from "wavesurfer.js/dist/plugins/timeline.js";
 import Regions, { RegionParams } from "wavesurfer.js/dist/plugins/regions.js";
@@ -21,8 +21,8 @@ import {
 } from "@mui/material";
 import PauseRounded from "@mui/icons-material/PauseRounded";
 import PlayArrowRounded from "@mui/icons-material/PlayArrowRounded";
-import VolumeDown from "@mui/icons-material/VolumeDown";
-import VolumeUp from "@mui/icons-material/VolumeUp";
+import ZoomOut from "@mui/icons-material/ZoomOut";
+import ZoomIn from "@mui/icons-material/ZoomIn";
 import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { WaveSurferOptions } from "wavesurfer.js";
@@ -59,7 +59,16 @@ const WaveSurferPlayer = ({
     [key: string]: { start: number; end: number };
   }>({});
   const [currentTime, setCurrentTime] = useState(0);
-  const timelineWs = useRef(Timeline.create());
+  const timelineOptions = useRef({
+    height: 15,
+    timeInterval: 0.2,
+    primaryLabelInterval: 1,
+    style: {
+      fontSize: "10px",
+      color: "#fff",
+    },
+  });
+  const timelineWs = useRef(Timeline.create(timelineOptions.current));
   const regionsWs = useRef(Regions.create());
   const options = useRef<WaveSurferOptions>({
     fillParent: true,
@@ -263,7 +272,7 @@ const WaveSurferPlayer = ({
   return (
     <Box mt={5}>
       <Typography variant="h6">Waveform Explorer</Typography>
-      <Box mt={4} display="flex" flexWrap="wrap" gap={2}>
+      <Box mt={4} display="flex" alignItems={"center"} flexWrap="wrap" gap={2}>
         <Button
           variant="contained"
           onClick={pauseOrPlay}
@@ -273,14 +282,8 @@ const WaveSurferPlayer = ({
           {isPlaying ? <PauseRounded /> : <PlayArrowRounded />}
           {/* {isPlaying ? "Pause" : "Play"} */}
         </Button>
-        <Stack
-          spacing={2}
-          direction="row"
-          sx={{ mb: 1 }}
-          alignItems="center"
-          width={200}
-        >
-          <VolumeDown />
+        <Stack spacing={2} direction="row" alignItems="center" width={200}>
+          <ZoomOut color="secondary" />
           <Slider
             min={10}
             max={100}
@@ -290,7 +293,7 @@ const WaveSurferPlayer = ({
               wavesurfer?.zoom(val as number);
             }}
           />
-          <VolumeUp />
+          <ZoomIn color="secondary" />
         </Stack>
 
         <FormControlLabel
@@ -336,7 +339,6 @@ const WaveSurferPlayer = ({
             }
           }}
         ></div>
-        <Box id="wave-timeline"></Box>
       </Box>
       {/* <div ref={containerRef} style={{ minHeight: "120px" }} /> */}
       <Box mt={2}>

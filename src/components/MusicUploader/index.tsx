@@ -72,7 +72,7 @@ const MusicUploader = (props: any) => {
   // const onUploadToStorage = async () => {
   //   try {
   //     const storage = new Web3Storage({
-  //       token: process.env.WEB3_STORAGE as string,
+  //       token: import.meta.env.WEB3_STORAGE as string,
   //     });
   //     const fileCid = await storage.put([file]);
   //     setCid(fileCid);
