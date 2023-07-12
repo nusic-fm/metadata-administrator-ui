@@ -9,10 +9,10 @@ import {
   MenuItem,
   Tabs,
   Tab,
+  Chip,
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 // import WaveForm from "./components/WaveForm/old";
-
 import AcceptStems from "./components/Dropzone";
 import { useDropzone } from "react-dropzone";
 import TransactionDialog from "./components/TransactionDialog";
@@ -28,6 +28,11 @@ import ProofOfCreationTab, {
 import useSaveChanges from "./hooks/useSaveChanges";
 import dayjs from "dayjs";
 import WaveForm from "./components/WaveForm";
+import { ethers } from "ethers";
+import FactoryAbi from "./abi/NusicMetadataFactory.json";
+import { useWeb3React } from "@web3-react/core";
+import ArtistMetadataAbi from "./abi/NusicMetadata.json";
+import { LoadingButton } from "@mui/lab";
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
 
@@ -47,60 +52,7 @@ export type SectionsObj = {
   [internalId: string]: Section;
 };
 
-// const IOSSwitch = styled((props: SwitchProps) => (
-//   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
-// ))(({ theme }) => ({
-//   width: 42,
-//   height: 26,
-//   padding: 0,
-//   "& .MuiSwitch-switchBase": {
-//     padding: 0,
-//     margin: 2,
-//     transitionDuration: "300ms",
-//     "&.Mui-checked": {
-//       transform: "translateX(16px)",
-//       color: "#fff",
-//       "& + .MuiSwitch-track": {
-//         backgroundColor: theme.palette.mode === "dark" ? "#2ECA45" : "#573FC8",
-//         opacity: 1,
-//         border: 0,
-//       },
-//       "&.Mui-disabled + .MuiSwitch-track": {
-//         opacity: 0.5,
-//       },
-//     },
-//     "&.Mui-focusVisible .MuiSwitch-thumb": {
-//       color: "#33cf4d",
-//       border: "6px solid #fff",
-//     },
-//     "&.Mui-disabled .MuiSwitch-thumb": {
-//       color:
-//         theme.palette.mode === "light"
-//           ? theme.palette.grey[100]
-//           : theme.palette.grey[600],
-//     },
-//     "&.Mui-disabled + .MuiSwitch-track": {
-//       opacity: theme.palette.mode === "light" ? 0.7 : 0.3,
-//     },
-//   },
-//   "& .MuiSwitch-thumb": {
-//     boxSizing: "border-box",
-//     width: 22,
-//     height: 22,
-//   },
-//   "& .MuiSwitch-track": {
-//     borderRadius: 26 / 2,
-//     backgroundColor: theme.palette.mode === "light" ? "#c4c4c4" : "#39393D",
-//     opacity: 1,
-//     transition: theme.transitions.create(["background-color"], {
-//       duration: 500,
-//     }),
-//   },
-// }));
-
 const getWithoutSpace = (str: string) => str?.split(" ").join("");
-// const aliceMnemonic =
-//   "cost hello lounge proof dinner ask degree spoil donor brown diary midnight cargo fog enroll across cupboard zero chief gate decade toss pretty profit";
 
 function Metadata() {
   const [artistMetadataObj, setArtistMetadataObj] = useState<ArtistMetadataObj>(
@@ -159,6 +111,10 @@ function Metadata() {
   // const navigate = useNavigate();
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(1);
   const [draftAvailable, setDraftAvailable] = useState(false);
+  const [artistMetadataAddress, setArtistMetadataAddress] = useState<string>();
+  const [deployingContract, setDeployingContract] = useState(false);
+
+  const { account, library } = useWeb3React();
 
   const { getFromLocalStorage } = useSaveChanges(
     {
@@ -169,12 +125,46 @@ function Metadata() {
     setIsLocallySaving
   );
 
+  const findArtistContract = async (_account: string) => {
+    const factoryContract = new ethers.Contract(
+      import.meta.env.VITE_ARTIST_FACTORY_ADDRESS,
+      FactoryAbi.abi,
+      library.getSigner()
+    );
+    const bn = await factoryContract.getMetadataContract(_account);
+    const metadataAddress = bn.toString();
+    if (metadataAddress === "0x0000000000000000000000000000000000000000") {
+    } else {
+      setArtistMetadataAddress(metadataAddress);
+    }
+  };
+
+  const deployArtistMetadataContract = async (_account: string) => {
+    setDeployingContract(true);
+    const factoryContract = new ethers.Contract(
+      import.meta.env.VITE_ARTIST_FACTORY_ADDRESS,
+      FactoryAbi.abi,
+      library.getSigner()
+    );
+    const tx = await factoryContract.setupMetadataForArtist("Test", _account);
+    await tx.wait();
+    findArtistContract(_account);
+    setDeployingContract(false);
+    alert("Success");
+  };
+
   useEffect(() => {
     const obj = getFromLocalStorage();
     if (obj) {
       setDraftAvailable(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (account) {
+      findArtistContract(account);
+    }
+  }, [account]);
 
   useEffect(() => {
     if (acceptedFiles.length) {
@@ -228,13 +218,6 @@ function Metadata() {
         startBeatOffsetMs: Math.floor(time * 1000),
       });
     }
-    // const response = await fetch(
-    //   "http://localhost:8080/cid/bafybeianjehxvg3qpore2bkt5vjmou5qovxuxl46izid4wm4kugxtxcq5e"
-    // );
-    // const content = await response.arrayBuffer();
-    // const blob = new Blob([content], { type: "audio/wav" });
-    // const a = new Audio(URL.createObjectURL(blob));
-    // a.play();
   };
 
   const download = (content: any, fileName: string, contentType: string) => {
@@ -322,66 +305,6 @@ function Metadata() {
       stems: Object.keys(stemsObj).length,
     };
 
-    // const { creator, signingClient } = await getSigningStargateClient();
-    // const { keplr } = window;
-    // if (!keplr) {
-    //   alert("You need to install Keplr");
-    //   return;
-    // }
-    // const offlineSigner: OfflineSigner = keplr.getOfflineSigner!(cosmosChainId);
-    // const { msgCreateFullTrack, msgCreateSection, msgCreateStem } =
-    //   await txClient(offlineSigner);
-
-    // let parentFullTrackId;
-    // try {
-    //   const fromJson = MsgCreateFullTrack.fromJSON({
-    //     creator,
-    //     cid,
-    //     artistName: artist,
-    //     featureArtists,
-    //     trackTitle: title,
-    //     album,
-    //     genrePrimary,
-    //     genreSecondary,
-    //     songMoods,
-    //     songType,
-    //     key,
-    //     bpm,
-    //     timeSignature,
-    //     bars: noOfBars,
-    //     beats: noOfBeats,
-    //     durationMs: (duration || 0) * 1000,
-    //     startBeatOffsetMs: startBeatOffsetMs.toString(),
-    //     sectionsCount: Object.keys(sectionsObj).length,
-    //     stemsCount: Object.keys(stemsObj).length,
-    //     isrcCode,
-    //     upcCode,
-    //     recordLabel,
-    //     distributor,
-    //     dateCreated,
-    //   });
-    //   const msgEncoded = msgCreateFullTrack(fromJson);
-    //   // // const broadCast = await signAndBroadcast([msgEncoded]);
-    //   const broadCast = await signingClient.signAndBroadcast(
-    //     creator,
-    //     [msgEncoded],
-    //     "auto"
-    //   );
-    //   const id = JSON.parse(
-    //     JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[0].value
-    //   );
-    //   const creatorAddress = JSON.parse(
-    //     JSON.parse(broadCast.rawLog || "")[0].events[1].attributes[1].value
-    //   );
-    //   parentFullTrackId = id;
-    //   console.log(broadCast, id, creatorAddress);
-    // } catch (err) {
-    //   console.log("error: ", err);
-    //   alert("Error creating fulltrack tx.");
-    //   return;
-    // }
-
-    setActiveTxStep(2);
     // Stems
     const stems = Object.values(stemsObj);
     const stemsContent = [];
@@ -397,31 +320,8 @@ function Metadata() {
           name: stemObj.name,
           type: stemObj.type,
         });
-        // const fromJson = MsgCreateStem.fromJSON({
-        //   creator,
-        //   fullTrackID: parentFullTrackId,
-        //   stemCid: cid, //TODO
-        //   stemName: stemObj.name,
-        //   stemType: stemObj.type,
-        // });
-        // const msgEncoded = msgCreateStem(fromJson);
-        // broadCastStemsMsgs.push(msgEncoded);
       }
-      //   try {
-      //     //// const broadCastedStems = await signAndBroadcast(broadCastStemsMsgs);
-      //     // const broadCastedStems = await signingClient.signAndBroadcast(
-      //     //   creator,
-      //     //   broadCastStemsMsgs,
-      //     //   "auto"
-      //     // );
-      //     // console.log({ broadCastStemsMsgs });
-      //     // console.log({ broadCastedStems });
-      //   } catch (err) {
-      //     console.log("error: ", err);
-      //     alert("Error creating stems tx.");
-      //   }
     }
-    // setActiveTxStep(3);
 
     // Section
     const sections = Object.values(sectionsObj);
@@ -430,15 +330,6 @@ function Metadata() {
       const broadCastSectionsMsgs = [];
       for (let i = 0; i < sections.length; i++) {
         const section = sections[i];
-        // const fromJson = MsgCreateSection.fromJSON({
-        //   creator,
-        //   fullTrackID: parentFullTrackId,
-        //   sectionName: section.name,
-        //   sectionStartTimeMs: section.start * 1000,
-        //   sectionEndTimeMs: section.end * 1000,
-        // });
-        //     const msgEncoded = msgCreateSection(fromJson);
-        //     broadCastSectionsMsgs.push(msgEncoded);
         sectionsContent.push({
           id: `section${
             i + 1
@@ -449,68 +340,54 @@ function Metadata() {
           bars: section.bars,
           beats: section.bars * noOfBeatsPerBar,
         });
-        //     // const sectionHash = await new Promise<string>((res) => {
-        //     //   api.tx.uploadModule
-        //     //     .createSection(
-        //     //       `section${
-        //     //         i + 1
-        //     //       }${titleWithoutSpace}${genreWithoutSpace}${key}${bpm}`,
-        //     //       section.name,
-        //     //       section.start * 1000,
-        //     //       section.end * 1000,
-        //     //       section.bars,
-        //     //       section.bars * noOfBeatsPerBar
-        //     //     )
-        //     //     .signAndSend(account, ({ events = [], status }) => {
-        //     //       if (status.isFinalized) {
-        //     //         console.log(
-        //     //           `Transaction included at blockHash ${status.asFinalized}`
-        //     //         );
-
-        //     //         // Loop through Vec<EventRecord> to display all events
-        //     //         events.forEach(({ phase, event: { data, method, section } }) => {
-        //     //           console.log(`\t' ${phase}: ${section}.${method}:: ${data}`);
-        //     //         });
-        //     //         res(status.hash.toString());
-        //     //       }
-        //     //     });
-        //     // });
-        //     // setSectionsHash([...sectionsHash, sectionHash]);
       }
-      //   try {
-      //     // const broadCastedStems = await signAndBroadcast(broadCastSectionsMsgs);
-      //     console.log({ broadCastSectionsMsgs });
-      //     const broadCastedStems = await signingClient.signAndBroadcast(
-      //       creator,
-      //       [...broadCastSectionsMsgs, ...broadCastStemsMsgs],
-      //       "auto"
-      //     );
-      //     console.log(broadCastedStems);
-      //   } catch (err) {
-      //     console.log("error: ", err);
-      //     alert("Error creating sections tx.");
-      //   }
+    }
+    setActiveTxStep(2);
+    const client = new Web3Storage({
+      token: import.meta.env.VITE_WEB3_STORAGE as string,
+    });
+    const metadataFile = new File(
+      [
+        JSON.stringify({
+          fullTrackContent,
+          stemsContent,
+          sectionsContent,
+        }),
+      ],
+      "metadata.json",
+      { type: "application/json" }
+    );
+    const ipfsCid = await client.put([metadataFile]);
+    // const ipfsCid =
+    //   "bafybeibctdasolo4773kquf6oxfqcmw2xpmr2mplizzbooidwcocspxvsm";
+    if (artistMetadataAddress) {
+      const metadataContract = new ethers.Contract(
+        artistMetadataAddress,
+        ArtistMetadataAbi.abi,
+        library.getSigner()
+      );
+      const tx = await metadataContract.publishMetadata(
+        ipfsCid,
+        "0x91cb12fb7a1678b6cdc1b18ef8d5ec0d7697c4a0",
+        "1"
+      );
+      await tx.wait(tx.confirmations);
+      setActiveTxStep(3);
+      alert("successful");
     }
     download(
       JSON.stringify({
         fullTrackContent,
         stemsContent,
         sectionsContent,
+        ipfsCid,
         // fullTrackId: parentFullTrackId,
       }),
       `NUSIC-${titleWithoutSpace}-metadata.json`,
       "text/plain"
     );
-    setActiveTxStep(4);
   };
 
-  // const transfer = async () => {
-  //   // Sign and send a transfer from Alice to Bob
-  //   // const txHash = await api.tx.balances
-  //   //   .transfer("5FHneW46xGXgs5mUiveU4sbTyGBzmstUspZC92UhjJM694ty", 12345)
-  //   //   .signAndSend("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY");
-  //   // const txHash = await api.tx.uploadModule.createClaim()
-  // };
   const onTxClick = async () => {
     const storeFiles = !Boolean(import.meta.env.VITE_IGNORE_STORAGE);
     const { fullTrackFile } = proofOfCreationMetadataObj;
@@ -526,79 +403,26 @@ function Metadata() {
     const allFiles = [fullTrackFile, ...stemFiles];
     let finalFiles;
     if (storeFiles) {
-      // if (isEncryptFiles) {
-      //   finalFiles = await encryptFiles(allFiles);
-      // } else {
       finalFiles = allFiles;
-      // }
       const client = new Web3Storage({
         token: import.meta.env.VITE_WEB3_STORAGE as string,
       });
       const cid = await client.put(finalFiles);
       setCid(cid);
-    } else {
-      setCid("test_cid_here");
     }
-    // const formData = new FormData();
-    // files.map((file) => {
-    //   if (file) {
-    //     formData.append(file.name, file);
-    //   }
-    //   return false;
-    // });
-    // const response = await axios.post(
-    //   "https://music-assets-storage-ynfarb57wa-uc.a.run.app/upload",
-    //   formData
-    // );
-    // if (response.data.cid) {
-    //   setCid(response.data.cid);
-    // } else {
-    //   alert("Some error Occured, please try again later.");
-    //   setIsTxDialogOpen(false);
-    //   return;
+    //  else {
+    //   setCid("test_cid_here");
     // }
     setActiveTxStep(1);
+    processTx();
   };
-  useEffect(() => {
-    if (cid) {
-      processTx();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cid]);
+  // useEffect(() => {
+  //   if (cid) {
+  //     processTx();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [cid]);
 
-  // const encryptFiles = async (files: File[]): Promise<File[]> => {
-  //   const filePromises = files.map((file) => {
-  //     return new Promise<File>((res) => {
-  //       const reader = new FileReader();
-  //       reader.addEventListener("load", (event: any) => {
-  //         const buff = event.target.result;
-  //         var wordArray = CryptoJS.lib.WordArray.create(buff);
-  //         var encrypted = CryptoJS.AES.encrypt(
-  //           wordArray,
-  //           import.meta.env.VITE_ENCRYPTION_KEY
-  //         ).toString();
-  //         const newEncryptedFile = new File([encrypted], file.name);
-  //         res(newEncryptedFile);
-  //       });
-  //       reader.readAsArrayBuffer(file);
-  //     });
-  //   });
-  //   return Promise.all(filePromises);
-  //   // await new Promise((res) => {
-  //   //   const reader = new FileReader();
-  //   //   reader.addEventListener("load", async (event: any) => {
-  //   //     const buff = event.target.result;
-  //   //     var wordArray = CryptoJS.lib.WordArray.create(buff);
-  //   //     var encrypted = CryptoJS.AES.encrypt(
-  //   //       wordArray,
-  //   //       "1234567887654321"
-  //   //     ).toString();
-  //   //     const file = new File([encrypted], "fileName");
-  //   //     console.log(file);
-  //   //   });
-  //   //   reader.readAsArrayBuffer(fullTrackFile as File);
-  //   // });
-  // };
   const onTxDialogClose = () => {
     setIsTxDialogOpen(false);
     // navigate("/");
@@ -623,6 +447,20 @@ function Metadata() {
             >
               Music Metadata Information
             </Typography>
+            {artistMetadataAddress ? (
+              <Chip label={artistMetadataAddress} variant="outlined" />
+            ) : (
+              <LoadingButton
+                color="info"
+                size="small"
+                onClick={() => {
+                  if (account) deployArtistMetadataContract(account);
+                }}
+                loading={deployingContract}
+              >
+                Deploy your Artist Contract
+              </LoadingButton>
+            )}
             {/* <Typography variant="caption" fontStyle={"italic"} color="gray">
                 saved
               </Typography> */}

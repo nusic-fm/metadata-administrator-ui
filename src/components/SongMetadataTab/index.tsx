@@ -482,7 +482,7 @@ const SongMetadataTab = ({ songMetadataObj, setSongMetadataObj }: Props) => {
               <br />
             </Typography>
             <Button
-              variant="outlined"
+              variant="contained"
               disabled={additionalCreationRow}
               onClick={() => onPropertyChange("additionalCreationRow", true)}
               // sx={{ minWidth: "auto", whiteSpace: "nowrap" }}

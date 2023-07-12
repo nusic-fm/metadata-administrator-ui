@@ -34,20 +34,36 @@ const TransactionDialog = (props: any) => {
         <Stepper activeStep={activeTxStep} orientation="vertical">
           <Step>
             <StepLabel>
-              <Typography>Music Assets Storage</Typography>
+              <Typography>Music Assets</Typography>
             </StepLabel>
             <StepContent>
               <Typography variant="caption">
                 {isEncryptFiles
                   ? "Encrypting and Storing on Web3.Storage"
-                  : "Storing on Web3.Storage"}
+                  : "Storing on IPFS"}
               </Typography>
               <LinearProgress />
             </StepContent>
           </Step>
           <Step>
             <StepLabel>
-              <Typography>Submitting Fulltrack</Typography>
+              <Typography>Song Metadata</Typography>
+              {/* {fullTrackHash === "error" ? (
+                <Typography variant="caption" color="error">
+                  Rococo blockchain node is offline at the moment.
+                </Typography>
+              ) : (
+                <Typography variant="caption">{fullTrackHash}</Typography>
+              )} */}
+            </StepLabel>
+            <StepContent>
+              <Typography variant="caption">Storing on IPFS</Typography>
+              <LinearProgress />
+            </StepContent>
+          </Step>
+          <Step>
+            <StepLabel>
+              <Typography>Running the Transaction</Typography>
               {fullTrackHash === "error" ? (
                 <Typography variant="caption" color="error">
                   Rococo blockchain node is offline at the moment.
@@ -63,27 +79,7 @@ const TransactionDialog = (props: any) => {
               <LinearProgress />
             </StepContent>
           </Step>
-          <Step>
-            <StepLabel>
-              <Typography>Submitting Proof of Creation (stems)</Typography>
-              {fullTrackHash === "error" ? (
-                <Typography variant="caption" color="error">
-                  Rococo blockchain node is offline at the moment.
-                </Typography>
-              ) : (
-                stemsHash.map((stemHash: string) => (
-                  <Typography variant="caption">{stemHash}</Typography>
-                ))
-              )}
-            </StepLabel>
-            <StepContent>
-              <Typography variant="caption">
-                Transaction in progress...
-              </Typography>
-              <LinearProgress />
-            </StepContent>
-          </Step>
-          <Step>
+          {/* <Step>
             <StepLabel>
               <Typography>Submitting Sections</Typography>
               {fullTrackHash === "error" ? (
@@ -102,7 +98,7 @@ const TransactionDialog = (props: any) => {
               </Typography>
               <LinearProgress />
             </StepContent>
-          </Step>
+          </Step> */}
         </Stepper>
       </DialogContent>
       <DialogActions>

@@ -6,7 +6,7 @@ import WithNavbar from "../WithNavBar";
 type Props = {};
 
 const Header = (props: Props) => {
-  const { account } = useWeb3React();
+  const { account, deactivate } = useWeb3React();
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" p={2}>
@@ -14,6 +14,7 @@ const Header = (props: Props) => {
         {account ? (
           <Tooltip title={account}>
             <Chip
+              onClick={() => deactivate()}
               clickable
               label={`${account.slice(0, 8)}...${account.slice(
                 account.length - 4
