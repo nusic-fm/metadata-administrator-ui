@@ -20,6 +20,7 @@ function WithTokenGate({ children }: Props) {
 
   const checkAutoLogin = async () => {
     if (!(window as any).ethereum) return;
+    setAuthLoading(true);
     const provider = new Web3Provider((window as any).ethereum);
     const accounts = await provider.listAccounts();
     if (accounts.length) {
@@ -77,6 +78,7 @@ function WithTokenGate({ children }: Props) {
     await checkAndSwitchConnection();
     activate(connector, async (e) => {
       await checkAndSwitchConnection();
+      await checkAutoLogin();
       if (e.name === "t" || e.name === "UnsupportedChainIdError") {
         // setSnackbarMessage("Please switch to Ethereum Mainnet");
       } else {

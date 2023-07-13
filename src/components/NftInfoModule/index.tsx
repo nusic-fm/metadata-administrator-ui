@@ -55,14 +55,20 @@ const NftInfoModule = ({
           value={nftAddress}
           onChange={(e) => setNftAddress(e.target.value)}
         />
-        <Box>
+        <Stack spacing={2} direction="row">
           <TextField
             label="TokenId"
             size="small"
             value={tokenId}
             onChange={(e) => setTokenId(e.target.value)}
           />
-        </Box>
+          <TextField
+            label="Chain"
+            size="small"
+            disabled
+            value={"Optimism Mainnet"}
+          />
+        </Stack>
       </Stack>
       {nftMetadata && (
         <Stack direction={"row"} spacing={2}>
