@@ -116,7 +116,7 @@ const WaveSurferPlayer = ({
         content.style.paddingLeft = "4px";
         regionsWs.current.addRegion({
           start,
-          color: "rgba(255,255,255,0.4)",
+          color: "rgba(255,255,255,0.2)",
           content: content,
           drag: false,
           resize: false,

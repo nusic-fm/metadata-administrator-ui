@@ -11,7 +11,7 @@ import {
   Tab,
   Chip,
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 // import WaveForm from "./components/WaveForm/old";
 import AcceptStems from "./components/Dropzone";
 import { useDropzone } from "react-dropzone";
@@ -100,7 +100,7 @@ function Metadata() {
   const [sectionsObj, setSectionsObj] = useState<SectionsObj>({});
   const [stemsObj, setStemsObj] = useState<StemsObj>({});
 
-  const getSelectedBeatOffet = useRef(null);
+  // const getSelectedBeatOffet = useRef(null);
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
   const [activeTxStep, setActiveTxStep] = useState<number>(0);
   const [isTxDialogOpen, setIsTxDialogOpen] = useState<boolean>(false);
@@ -110,7 +110,7 @@ function Metadata() {
   const [stemsHash, setStemsHash] = useState<string[]>([]);
   const [sectionsHash, setSectionsHash] = useState<string[]>([]);
 
-  const [userAddress, setUserAddress] = useState<string>();
+  // const [userAddress, setUserAddress] = useState<string>();
   // const navigate = useNavigate();
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(1);
   const [draftAvailable, setDraftAvailable] = useState(false);
@@ -124,6 +124,8 @@ function Metadata() {
 
   const { getFromLocalStorage } = useSaveChanges(
     {
+      nftAddress,
+      tokenId,
       artistMetadataObj,
       songMetadataObj,
     },
@@ -498,7 +500,14 @@ function Metadata() {
               onClick={() => {
                 const obj = getFromLocalStorage();
                 if (obj) {
-                  const { artistMetadataObj, songMetadataObj } = obj;
+                  const {
+                    nftAddress,
+                    tokenId,
+                    artistMetadataObj,
+                    songMetadataObj,
+                  } = obj;
+                  setNftAddress(nftAddress);
+                  setTokenId(tokenId);
                   setArtistMetadataObj(artistMetadataObj);
                   if (songMetadataObj.dateCreated) {
                     songMetadataObj.dateCreated = dayjs(
@@ -521,6 +530,7 @@ function Metadata() {
             tokenProps={[tokenId, setTokenId]}
             nftMetadata={nftMetadata}
             onMetadatUpdate={onMetdataFetch}
+            setIsStartListening={setIsStartListening}
           />
         </Box>
         <Box mt={2}>

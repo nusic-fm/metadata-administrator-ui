@@ -10,6 +10,7 @@ type Props = {
   tokenProps: [string, (str: string) => void];
   nftMetadata?: IZoraNftMetadata;
   onMetadatUpdate: (obj: IZoraNftMetadata) => void;
+  setIsStartListening: (isStartListening: boolean) => void;
 };
 
 const NftInfoModule = ({
@@ -17,6 +18,7 @@ const NftInfoModule = ({
   nftMetadata,
   tokenProps,
   onMetadatUpdate,
+  setIsStartListening,
 }: Props) => {
   const [nftAddress, setNftAddress] = addressProps;
   const [tokenId, setTokenId] = tokenProps;
@@ -41,6 +43,9 @@ const NftInfoModule = ({
 
   useEffect(() => {
     fetchNftMetadata();
+    if (nftAddress || tokenId) {
+      setIsStartListening(true);
+    }
   }, [nftAddress, tokenId]);
 
   const open = Boolean(anchorEl);

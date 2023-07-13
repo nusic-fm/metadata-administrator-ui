@@ -5,19 +5,21 @@ import { SongMetadataObj } from "../components/SongMetadataTab";
 
 const useSaveChanges = (
   props: {
+    nftAddress: string;
+    tokenId: string;
     artistMetadataObj: ArtistMetadataObj;
     songMetadataObj: SongMetadataObj;
   },
   isStartListening: boolean,
   setIsLoading: (value: boolean) => void
 ) => {
-  const { artistMetadataObj, songMetadataObj } = props;
+  const { nftAddress, tokenId, artistMetadataObj, songMetadataObj } = props;
 
   useEffect(() => {
     if (isStartListening) {
       storeInLocalStorage();
     }
-  }, [artistMetadataObj, songMetadataObj]);
+  }, [nftAddress, tokenId, artistMetadataObj, songMetadataObj]);
 
   const storeInLocalStorage = () => {
     setIsLoading(true);
@@ -28,6 +30,8 @@ const useSaveChanges = (
   const getFromLocalStorage = ():
     | undefined
     | {
+        nftAddress: string;
+        tokenId: string;
         artistMetadataObj: ArtistMetadataObj;
         songMetadataObj: SongMetadataObj;
       } => {

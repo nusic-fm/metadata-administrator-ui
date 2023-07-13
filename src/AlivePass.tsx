@@ -8,8 +8,10 @@ import {
   DialogTitle,
   Divider,
   Drawer,
+  FormControl,
   Grid,
   IconButton,
+  InputLabel,
   MenuItem,
   Select,
   TextField,
@@ -18,17 +20,11 @@ import {
 } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import { useWeb3React } from "@web3-react/core";
-import { InjectedConnector } from "@web3-react/injected-connector";
-import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
-import { WalletLinkConnector } from "@web3-react/walletlink-connector";
-import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import { checkAndSwitchConnection, createUrlFromCid } from "./utils/helper";
+import { createUrlFromCid } from "./utils/helper";
 import { getNftsMetadataByWallet } from "./utils/zora";
-import { Injected, CoinbaseWallet } from "./utils/connectors";
 import { IZoraData } from "./models/IZora";
 import { useGlobalAudioPlayer } from "react-use-audio-player";
-import WalletConnectors from "./components/Modals/WalletConnector";
 import { IAliveUserDoc } from "./models/IUser";
 import {
   getOrCreateUserDoc,
@@ -40,7 +36,7 @@ import NftMusicCard from "../src/components/NftMusicCard";
 import BottomPlayer from "./components/BottomPlayer";
 import CloseIcon from "@mui/icons-material/Close";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import { Web3Provider } from "@ethersproject/providers";
+import { getSpecificNftsByWallet } from "./utils/moralis";
 
 type Props = {};
 
@@ -171,60 +167,9 @@ const AlivePass = (props: Props) => {
     //   (v) => v.collectionAddress === import.meta.env.NEXT_PUBLIC_ETH_ALIVE_ADDRESS
     // );
     // if (alivePassIndex !== -1) setTokenId(_token[alivePassIndex].tokenId);
-    const nftContract = new ethers.Contract(
-      import.meta.env.VITE_ALIVE_ADDRESS as string,
-      [
-        {
-          inputs: [],
-          name: "totalSupply",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "tokenId",
-              type: "uint256",
-            },
-          ],
-          name: "ownerOf",
-          outputs: [
-            {
-              internalType: "address",
-              name: "",
-              type: "address",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
-        },
-      ],
-      library.getSigner()
-    );
-    const supplyBn = await nftContract.totalSupply();
-    const totalSupply = Number(supplyBn);
-    let _tokenId: string = "";
-    const _tokenIds: string[] = [];
-
-    for (let i = 1; i <= totalSupply; i++) {
-      const addr = await nftContract.ownerOf(i);
-      if (addr === account) {
-        _tokenId = i.toString();
-        _tokenIds.push(_tokenId);
-        // if (_tokenIds.length === aliveTokensBalance) {
-        //   break;
-        // }
-      }
-    }
-    setTokenId(_tokenId);
+    const nfts = await getSpecificNftsByWallet(account);
+    const _tokenIds = nfts.map((nft: any) => nft.token_id);
+    setTokenId(_tokenIds[0]);
     setOwnedTokenIds(_tokenIds);
     setPageLoading(false);
   };
@@ -466,19 +411,24 @@ const AlivePass = (props: Props) => {
               >
                 <Typography variant="h6">Alive Pass #{tokenId}</Typography>
                 {ownedTokenIds.length > 1 && (
-                  <Select
-                    label="Owned Tokens"
-                    sx={{ width: "80px", ml: "auto" }}
-                    onChange={(e) => setTokenId(e.target.value as string)}
-                    value={tokenId}
-                    size="small"
-                  >
-                    {ownedTokenIds.map((t) => (
-                      <MenuItem key={t} value={t}>
-                        {t}
-                      </MenuItem>
-                    ))}
-                  </Select>
+                  <FormControl sx={{ width: "80px", ml: "auto" }} color="info">
+                    <InputLabel id="demo-simple-select-label">
+                      Tokens
+                    </InputLabel>
+                    <Select
+                      label="Tokens"
+                      color="info"
+                      onChange={(e) => setTokenId(e.target.value as string)}
+                      value={tokenId}
+                      size="small"
+                    >
+                      {ownedTokenIds.map((t) => (
+                        <MenuItem key={t} value={t}>
+                          {t}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 )}
                 <LoadingButton
                   sx={{ ml: "auto" }}
