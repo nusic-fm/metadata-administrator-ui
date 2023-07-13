@@ -383,3 +383,30 @@ export const tokensInWalletQuery = `#graphql
       }
   }
     `;
+
+export const tokenMetadataQuery = `#graphql
+  query MyQuery($address: String! $tokenId: String!) {
+    token(
+    token: {address: $address, tokenId: $tokenId}
+    network: {network: OPTIMISM, chain: OPTIMISM_MAINNET}
+  ) {
+    token {
+            collectionName
+            tokenId
+            name
+            content {
+                mimeType
+                url
+            }
+            collectionAddress
+            image {
+                mimeType
+                url
+            }
+            # lastRefreshTime
+            metadata
+            tokenUrl
+        }
+    }
+  }
+    `;

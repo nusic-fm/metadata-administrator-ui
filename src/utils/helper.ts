@@ -51,3 +51,24 @@ export const convertSecondsToHHMMSS = (totalSeconds: number) => {
 
   return hhmmss;
 };
+
+export const fetchAndConvertToBlob = (url: string): Promise<File> => {
+  return new Promise((res, rej) => {
+    fetch(url)
+      .then((response) => response.blob())
+      .then((blob) => res(new File([blob], "music")));
+  });
+};
+
+export const getAudioDuration = async (url: string): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    const audio = new Audio();
+    audio.src = url;
+    audio.addEventListener("loadedmetadata", () => {
+      resolve(audio.duration);
+    });
+    audio.addEventListener("error", () => {
+      reject(0);
+    });
+  });
+};

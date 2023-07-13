@@ -1,13 +1,13 @@
 import { Box, Button } from "@mui/material";
-import { useRef, useState } from "react";
+import { getAudioDuration } from "../../utils/helper";
 // import { Web3Storage } from "web3.storage";
 // import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
 // import PauseCircleFilledOutlinedIcon from "@mui/icons-material/PauseCircleFilledOutlined";
 
 const MusicUploader = (props: any) => {
   const { fullTrackFile, onMultiplePropsChange } = props;
-  const [, setIsPlaying] = useState<any>(false);
-  const audioRef = useRef<any>(null);
+  // const [, setIsPlaying] = useState<any>(false);
+  // const audioRef = useRef<any>(null);
 
   const onFilesUpload = async (e: any) => {
     const files = e.target.files;
@@ -16,32 +16,38 @@ const MusicUploader = (props: any) => {
     }
     // setFullTrackFile(files[0]);
     const url = URL.createObjectURL(files[0]);
+    const duration = await getAudioDuration(url);
+    onMultiplePropsChange({
+      fullTrackFile: files[0],
+      fileUrl: url,
+      duration,
+    });
     // setFileUrl(url);
-    const audio = new Audio(url);
-    audioRef.current = audio;
-    audio.addEventListener(
-      "loadedmetadata",
-      function () {
-        // Obtain the duration in seconds of the audio file (with milliseconds as well, a float value)
-        var duration = audio.duration;
-        // setDuration(duration);
-        onMultiplePropsChange({
-          fullTrackFile: files[0],
-          fileUrl: url,
-          duration,
-        });
-      },
-      false
-    );
-    audioRef.current.addEventListener("play", function () {
-      setIsPlaying(true);
-    });
-    audioRef.current.addEventListener("pause", function () {
-      setIsPlaying(false);
-    });
-    audioRef.current.addEventListener("ended", function () {
-      setIsPlaying(false);
-    });
+    // const audio = new Audio(url);
+    // audioRef.current = audio;
+    // audio.addEventListener(
+    //   "loadedmetadata",
+    //   function () {
+    //     // Obtain the duration in seconds of the audio file (with milliseconds as well, a float value)
+    //     var duration = audio.duration;
+    //     // setDuration(duration);
+    //     onMultiplePropsChange({
+    //       fullTrackFile: files[0],
+    //       fileUrl: url,
+    //       duration,
+    //     });
+    //   },
+    //   false
+    // );
+    // audioRef.current.addEventListener("play", function () {
+    //   setIsPlaying(true);
+    // });
+    // audioRef.current.addEventListener("pause", function () {
+    //   setIsPlaying(false);
+    // });
+    // audioRef.current.addEventListener("ended", function () {
+    //   setIsPlaying(false);
+    // });
     // const reader = new FileReader();
     // reader.addEventListener("load", (event: any) => {
     //   console.log({ event });

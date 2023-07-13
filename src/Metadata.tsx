@@ -33,6 +33,9 @@ import FactoryAbi from "./abi/NusicMetadataFactory.json";
 import { useWeb3React } from "@web3-react/core";
 import ArtistMetadataAbi from "./abi/NusicMetadata.json";
 import { LoadingButton } from "@mui/lab";
+import NftInfoModule from "./components/NftInfoModule";
+import { IZoraNftMetadata } from "./models/IZora";
+import { createUrlFromCid, fetchAndConvertToBlob } from "./utils/helper";
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
 
@@ -113,6 +116,9 @@ function Metadata() {
   const [draftAvailable, setDraftAvailable] = useState(false);
   const [artistMetadataAddress, setArtistMetadataAddress] = useState<string>();
   const [deployingContract, setDeployingContract] = useState(false);
+  const [nftAddress, setNftAddress] = useState<string>("");
+  const [tokenId, setTokenId] = useState<string>("");
+  const [nftMetadata, setNftMetadata] = useState<IZoraNftMetadata>();
 
   const { account, library } = useWeb3React();
 
@@ -390,17 +396,25 @@ function Metadata() {
 
   const onTxClick = async () => {
     const storeFiles = !Boolean(import.meta.env.VITE_IGNORE_STORAGE);
-    const { fullTrackFile } = proofOfCreationMetadataObj;
-    if (!fullTrackFile) {
-      alert("Upload Full Track.");
+    // const { fullTrackFile } = proofOfCreationMetadataObj;
+    if (!proofOfCreationMetadataObj.fileUrl) {
+      alert("Audio is missing");
       return;
-    } else if (acceptedFiles.length === 0) {
+    }
+    const fileObj = await fetchAndConvertToBlob(
+      proofOfCreationMetadataObj.fileUrl
+    );
+    // if (!fileObj) {
+    //   alert("Upload Full Track.");
+    //   return;
+    // } else
+    if (acceptedFiles.length === 0) {
       // alert("Submit PoC/stem files");
       // return;
     }
     setIsTxDialogOpen(true);
     const stemFiles: File[] = Object.values(stemsObj).map((obj) => obj.file);
-    const allFiles = [fullTrackFile, ...stemFiles];
+    const allFiles = [fileObj, ...stemFiles];
     let finalFiles;
     if (storeFiles) {
       finalFiles = allFiles;
@@ -428,7 +442,18 @@ function Metadata() {
     // navigate("/");
     window.location.reload();
   };
-
+  const onMetdataFetch = async (obj: IZoraNftMetadata) => {
+    setNftMetadata(obj);
+    const url = createUrlFromCid(obj.content.url);
+    // const duration = await getAudioDuration(url);
+    // const fileObj = await fetchAndConvertToBlob(url);
+    setProofOfCreationMetadataObj({
+      ...proofOfCreationMetadataObj,
+      fileUrl: url,
+      // fullTrackFile: fileObj,
+      // duration,
+    });
+  };
   return (
     <Box>
       <Box p={{ xs: 4 }}>
@@ -489,6 +514,14 @@ function Metadata() {
               Load Previous State
             </Button>
           )}
+        </Box>
+        <Box mt={2} p={2} border="1px solid #1d1d1d" borderRadius={4}>
+          <NftInfoModule
+            addressProps={[nftAddress, setNftAddress]}
+            tokenProps={[tokenId, setTokenId]}
+            nftMetadata={nftMetadata}
+            onMetadatUpdate={onMetdataFetch}
+          />
         </Box>
         <Box mt={2}>
           <Tabs
@@ -553,6 +586,12 @@ function Metadata() {
           {proofOfCreationMetadataObj.fileUrl && (
             <WaveForm
               proofOfCreationMetadataObj={proofOfCreationMetadataObj}
+              onDurationUpdate={(duration: number) =>
+                setProofOfCreationMetadataObj({
+                  ...proofOfCreationMetadataObj,
+                  duration,
+                })
+              }
               sectionsObj={sectionsObj}
               setSectionsObj={setSectionsObj}
             />
@@ -610,7 +649,7 @@ function Metadata() {
             </Box>
             <Box mt={8} display="flex" justifyContent="center">
               <Button variant="contained" color="primary" onClick={onTxClick}>
-                Send To Blockchain
+                Publish
               </Button>
             </Box>
           </Box>

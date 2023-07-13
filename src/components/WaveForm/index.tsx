@@ -26,6 +26,7 @@ import ZoomIn from "@mui/icons-material/ZoomIn";
 import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { WaveSurferOptions } from "wavesurfer.js";
+import { convertSecondsToHHMMSS } from "../../utils/helper";
 
 const SectionNames = [
   "Intro",
@@ -43,12 +44,14 @@ type Props = {
   proofOfCreationMetadataObj: ProofOfCreationMetadataObj;
   sectionsObj: SectionsObj;
   setSectionsObj: React.Dispatch<React.SetStateAction<SectionsObj>>;
+  onDurationUpdate: (duration: number) => void;
 };
 
 const WaveSurferPlayer = ({
   proofOfCreationMetadataObj,
   sectionsObj,
   setSectionsObj,
+  onDurationUpdate,
 }: Props) => {
   const { fileUrl, durationOfEachBarInSec, noOfBars, startBeatOffsetMs, bpm } =
     proofOfCreationMetadataObj;
@@ -239,6 +242,10 @@ const WaveSurferPlayer = ({
   const onReady = () => {
     console.log("working");
     setIsWaveformReady(false);
+    if (wavesurfer) {
+      const duration = wavesurfer.getDuration();
+      onDurationUpdate(duration);
+    }
   };
 
   // Initialize wavesurfer when the container mounts
@@ -299,6 +306,9 @@ const WaveSurferPlayer = ({
           >
             Add Section
           </Button>
+          <Typography color={"gray"}>
+            {convertSecondsToHHMMSS(Math.floor(currentTime))}
+          </Typography>
         </Box>
         <Box display="flex" alignItems={"center"} gap={2} flexWrap="wrap">
           <FormControlLabel

@@ -35,6 +35,7 @@ function WithTokenGate({ children }: Props) {
   };
 
   const alivePassOwner = async (account: string) => {
+    setAuthLoading(true);
     const nftContract = new ethers.Contract(
       import.meta.env.VITE_ALIVE_ADDRESS as string,
       [
@@ -63,11 +64,11 @@ function WithTokenGate({ children }: Props) {
     const bn = await nftContract.balanceOf(account);
     if (Number(bn)) {
       setShowConnector(false);
-      setAuthLoading(false);
       //   setAliveTokensBalance(Number(bn));
     } else {
       setShowError(true);
     }
+    setAuthLoading(false);
   };
 
   const onSignInUsingWallet = async (
@@ -75,12 +76,13 @@ function WithTokenGate({ children }: Props) {
   ) => {
     await checkAndSwitchConnection();
     activate(connector, async (e) => {
+      await checkAndSwitchConnection();
       if (e.name === "t" || e.name === "UnsupportedChainIdError") {
         // setSnackbarMessage("Please switch to Ethereum Mainnet");
       } else {
         // setSnackbarMessage(e.message);
       }
-      setAuthLoading(false);
+      // setAuthLoading(false);
       console.log(e.name, e.message);
     });
   };
