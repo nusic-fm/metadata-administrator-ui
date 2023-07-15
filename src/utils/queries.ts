@@ -410,3 +410,33 @@ export const tokenMetadataQuery = `#graphql
     }
   }
     `;
+
+export const tokensFromCollectionAddress = `#graphql
+  query MyQuery($address: [String!]) {
+    tokens(
+        where: {collectionAddresses: $address}
+        networks: {network: OPTIMISM, chain: OPTIMISM_MAINNET}
+        pagination: {limit: 1}
+    ) {
+        nodes {
+            token {
+                collectionName
+                tokenId
+                name
+                content {
+                    mimeType
+                    url
+                }
+                collectionAddress
+                image {
+                    mimeType
+                    url
+                }
+                # lastRefreshTime
+                metadata
+                tokenUrl
+            }
+        }
+    }
+  }
+    `;

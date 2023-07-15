@@ -3,6 +3,7 @@ import { IZoraData, IZoraNftMetadata } from "../models/IZora";
 import {
   musicTokensInWalletQuery,
   tokenMetadataQuery,
+  tokensFromCollectionAddress,
   tokensInWalletQuery,
 } from "./queries";
 
@@ -160,6 +161,38 @@ export const getNftMetadataByToken = async (
     });
     const token = response.data.data?.token.token;
     return token;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
+export const getNftMetadataByCollectionAddress = async (
+  address: string,
+  chain?: string
+): Promise<IZoraNftMetadata | null> => {
+  const endpoint = "https://api.zora.co/graphql";
+  const headers = {
+    "content-type": "application/json",
+  };
+
+  try {
+    const graphqlQuery: any = {
+      // operationName: "fetchTokens",
+      query: tokensFromCollectionAddress,
+      variables: {
+        address: [address],
+      },
+    };
+
+    const response = await axios({
+      url: endpoint,
+      method: "post",
+      headers: headers,
+      data: graphqlQuery,
+    });
+    const tokens = response.data.data?.tokens.nodes;
+    return tokens[0].token;
   } catch (e) {
     console.log(e);
     return null;

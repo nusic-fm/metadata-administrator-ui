@@ -525,13 +525,16 @@ function Metadata() {
           )}
         </Box>
         <Box mt={2} p={2} border="1px solid #1d1d1d" borderRadius={4}>
-          <NftInfoModule
-            addressProps={[nftAddress, setNftAddress]}
-            tokenProps={[tokenId, setTokenId]}
-            nftMetadata={nftMetadata}
-            onMetadatUpdate={onMetdataFetch}
-            setIsStartListening={setIsStartListening}
-          />
+          {account && (
+            <NftInfoModule
+              addressProps={[nftAddress, setNftAddress]}
+              tokenProps={[tokenId, setTokenId]}
+              nftMetadata={nftMetadata}
+              onMetadatUpdate={onMetdataFetch}
+              setIsStartListening={setIsStartListening}
+              walletAddress={account}
+            />
+          )}
         </Box>
         <Box mt={2}>
           <Tabs
