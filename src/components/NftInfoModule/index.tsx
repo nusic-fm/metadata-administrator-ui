@@ -1,4 +1,14 @@
-import { Button, Popover, Stack, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Popover,
+  Select,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect } from "react";
 import { IZoraNftMetadata } from "../../models/IZora";
@@ -59,7 +69,9 @@ const NftInfoModule = ({
       );
       const collectionAddresses = res.data.collectionAddresses as string[];
       if (collectionAddresses.length === 0) {
-        setArtistNftsError("No NFTs found for your wallet");
+        setArtistNftsError(
+          "No NFT releases found from this wallet on sound.xyz"
+        );
       }
       const tokensPromises = collectionAddresses.map((address) =>
         getNftMetadataByCollectionAddress(address)
@@ -71,7 +83,9 @@ const NftInfoModule = ({
       // onMetadatUpdate(data);
       setNfts(data);
     } catch (e) {
-      setArtistNftsError("Failed to retrieve your NFTs");
+      setArtistNftsError(
+        "Failed to retrieve your NFT releases from sound.xyz, kindly try again later"
+      );
     }
   };
 
@@ -99,32 +113,24 @@ const NftInfoModule = ({
       justifyContent={"space-between"}
       alignItems="center"
     >
-      {/* {nftMetadata && (
-        <Stack spacing={2} flexBasis="40%">
-          <TextField
-            fullWidth
-            label="NFT Address"
-            size="small"
-            value={nftAddress}
-            onChange={(e) => setNftAddress(e.target.value)}
-          />
-          <Stack spacing={2} direction="row">
-            <TextField
-              label="TokenId"
-              size="small"
-              value={tokenId}
-              onChange={(e) => setTokenId(e.target.value)}
-            />
-            <TextField
-              label="Chain"
-              size="small"
-              disabled
-              value={"Optimism Mainnet"}
-            />
-          </Stack>
-        </Stack>
-      )} */}
-      <Box>
+      <Stack
+        direction={"row"}
+        spacing={2}
+        alignItems="center"
+        flexWrap={"wrap"}
+      >
+        <FormControl color="info" size="small">
+          <InputLabel id="demo-simple-select-label">Chain</InputLabel>
+          <Select value={0} label="Chain">
+            <MenuItem value={0}>Optimism</MenuItem>
+            <MenuItem value={1} disabled>
+              Ethereum
+            </MenuItem>
+            <MenuItem value={1} disabled>
+              Polygon
+            </MenuItem>
+          </Select>
+        </FormControl>
         {nftMetadata ? (
           <Stack direction={"row"} spacing={2}>
             <Box>
@@ -203,7 +209,7 @@ const NftInfoModule = ({
         {artistNftsError && (
           <Typography color={"error"}>{artistNftsError}</Typography>
         )}
-      </Box>
+      </Stack>
 
       <Stack ml={4} spacing={2} justifyContent="center">
         <Typography variant="body2" fontWeight={900}>

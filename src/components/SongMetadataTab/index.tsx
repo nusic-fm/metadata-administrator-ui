@@ -49,6 +49,7 @@ export type SongMetadataObj = {
       country?: string;
     };
   };
+  license: "Creative Commons" | "All Rights Reserved";
 };
 
 type Props = {
@@ -379,6 +380,24 @@ const SongMetadataTab = ({ songMetadataObj, setSongMetadataObj }: Props) => {
               value={distributor}
               onChange={(e) => onPropertyChange("distributor", e.target.value)}
             ></TextField>
+          </Box>
+        </Grid>
+      </Grid>
+      <Grid container item>
+        <Grid item xs={10} md={4}>
+          <Box>
+            <Typography>License</Typography>
+            <Select
+              size="small"
+              value={songMetadataObj.license}
+              onChange={(e) => onPropertyChange("license", e.target.value)}
+              defaultValue={"Creative Commons"}
+            >
+              <MenuItem value={"Creative Commons"}>Creative Commons </MenuItem>
+              <MenuItem value={"All Rights Reserved"}>
+                All Rights Reserved
+              </MenuItem>
+            </Select>
           </Box>
         </Grid>
       </Grid>
