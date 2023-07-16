@@ -44,6 +44,7 @@ const NftInfoModule = ({
   const [nfts, setNfts] = useState<IZoraNftMetadata[]>();
   const onlyOnceRef = useRef(false);
   const [artistNftsError, setArtistNftsError] = useState<string>();
+  const [fetchChainType, setFetchChainType] = useState(0);
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -64,8 +65,9 @@ const NftInfoModule = ({
 
   const fetchDeployedNftsFromWallet = async (_wallet: string) => {
     try {
+      const chainEndpoint = fetchChainType ? "eth" : "optimism";
       const res = await axios.get(
-        `${import.meta.env.VITE_WALLET_NFT_SERVER}/optimism/${_wallet}`
+        `${import.meta.env.VITE_WALLET_NFT_SERVER}/${chainEndpoint}/${_wallet}`
       );
       const collectionAddresses = res.data.collectionAddresses as string[];
       if (collectionAddresses.length === 0) {
@@ -102,7 +104,7 @@ const NftInfoModule = ({
     } else {
       onlyOnceRef.current = true;
     }
-  }, [walletAddress]);
+  }, [walletAddress, fetchChainType]);
 
   const open = Boolean(anchorEl);
 
@@ -121,14 +123,13 @@ const NftInfoModule = ({
       >
         <FormControl color="info" size="small">
           <InputLabel id="demo-simple-select-label">Chain</InputLabel>
-          <Select value={0} label="Chain">
+          <Select
+            value={0}
+            label="Chain"
+            onChange={(e) => setFetchChainType(Number(e.target.value))}
+          >
             <MenuItem value={0}>Optimism</MenuItem>
-            <MenuItem value={1} disabled>
-              Ethereum
-            </MenuItem>
-            <MenuItem value={1} disabled>
-              Polygon
-            </MenuItem>
+            <MenuItem value={1}>Ethereum</MenuItem>
           </Select>
         </FormControl>
         {nftMetadata ? (
