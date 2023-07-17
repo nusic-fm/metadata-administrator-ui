@@ -17,7 +17,30 @@ export const checkAndSwitchConnection = async () => {
             },
           ],
         });
-      } catch (err) {}
+      } catch (err: any) {
+        if (err.code === 4902) {
+          try {
+            await (window as any).ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: "0x13881", //TODO
+                  chainName: "Mumbai",
+                  rpcUrls: ["https://matic-mumbai.chainstacklabs.com"],
+                  nativeCurrency: {
+                    name: "Mumbai Matic",
+                    symbol: "MATIC",
+                    decimals: 18,
+                  },
+                  blockExplorerUrls: ["https://mumbai.polygonscan.com/"],
+                },
+              ],
+            });
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      }
     }
   }
 };
