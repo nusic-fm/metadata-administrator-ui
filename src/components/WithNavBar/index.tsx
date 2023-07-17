@@ -9,9 +9,9 @@ const WithNavbar = ({ children }: Props) => {
     <Box display={"flex"} gap={2}>
       <NavBar />
       <Box
-        height={"calc(100vh - 100px)"}
+        // height={"calc(100vh - 100px)"}
         width="100%"
-        sx={{ overflowY: "auto" }}
+        // sx={{ overflowY: "auto" }}
       >
         {children}
       </Box>
