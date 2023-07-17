@@ -49,7 +49,7 @@ export type SongMetadataObj = {
       country?: string;
     };
   };
-  license: "Creative Commons" | "All Rights Reserved";
+  license?: "Creative Commons" | "All Rights Reserved";
 };
 
 type Props = {
