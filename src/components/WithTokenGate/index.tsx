@@ -4,6 +4,7 @@ import { useWeb3React } from "@web3-react/core";
 import { InjectedConnector } from "@web3-react/injected-connector";
 import { WalletConnectConnector } from "@web3-react/walletconnect-connector";
 import { WalletLinkConnector } from "@web3-react/walletlink-connector";
+import { AlchemyProvider } from "ethers";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import { Injected, CoinbaseWallet } from "../../utils/connectors";
@@ -37,6 +38,10 @@ function WithTokenGate({ children }: Props) {
 
   const alivePassOwner = async (account: string) => {
     setAuthLoading(true);
+    const _provider = new AlchemyProvider(
+      Number(import.meta.env.VITE_CHAIN_ID),
+      import.meta.env.VITE_ALCHEMY_API
+    );
     const nftContract = new ethers.Contract(
       import.meta.env.VITE_ALIVE_ADDRESS as string,
       [
@@ -60,16 +65,21 @@ function WithTokenGate({ children }: Props) {
           type: "function",
         },
       ],
-      library.getSigner()
+      _provider
     );
-    const bn = await nftContract.balanceOf(account);
-    if (Number(bn)) {
-      setShowConnector(false);
-      //   setAliveTokensBalance(Number(bn));
-    } else {
-      setShowError(true);
+    try {
+      const bn = await nftContract.balanceOf(account);
+      if (Number(bn)) {
+        setShowConnector(false);
+        //   setAliveTokensBalance(Number(bn));
+      } else {
+        setShowError(true);
+      }
+    } catch (e) {
+      console.log(e);
+    } finally {
+      setAuthLoading(false);
     }
-    setAuthLoading(false);
   };
 
   const onSignInUsingWallet = async (

@@ -214,7 +214,7 @@ const NftInfoModule = ({
 
       <Stack ml={4} spacing={2} justifyContent="center">
         <Typography variant="body2" fontWeight={900}>
-          Don't find your collection here? Provide the address
+          Don't find your releases here? Provide the address
         </Typography>
         <TextField
           fullWidth
