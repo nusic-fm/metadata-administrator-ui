@@ -124,7 +124,7 @@ const NftInfoModule = ({
         <FormControl color="info" size="small">
           <InputLabel id="demo-simple-select-label">Chain</InputLabel>
           <Select
-            value={0}
+            value={fetchChainType}
             label="Chain"
             onChange={(e) => setFetchChainType(Number(e.target.value))}
           >

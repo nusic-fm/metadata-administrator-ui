@@ -9,6 +9,7 @@ import {
   Chip,
   Button,
   Checkbox,
+  Stack,
 } from "@mui/material";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -385,20 +386,20 @@ const SongMetadataTab = ({ songMetadataObj, setSongMetadataObj }: Props) => {
       </Grid>
       <Grid container item>
         <Grid item xs={10} md={4}>
-          <Box>
+          <Stack>
             <Typography>License</Typography>
             <Select
               size="small"
               value={songMetadataObj.license}
               onChange={(e) => onPropertyChange("license", e.target.value)}
-              defaultValue={"Creative Commons"}
+              placeholder="Select Licence"
             >
               <MenuItem value={"Creative Commons"}>Creative Commons </MenuItem>
               <MenuItem value={"All Rights Reserved"}>
                 All Rights Reserved
               </MenuItem>
             </Select>
-          </Box>
+          </Stack>
         </Grid>
       </Grid>
       <Grid item xs={10} md={4}>
