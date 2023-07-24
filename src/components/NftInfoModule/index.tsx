@@ -25,7 +25,13 @@ type Props = {
   addressProps: [string, (str: string) => void];
   tokenProps: [string, (str: string) => void];
   nftMetadata?: IZoraNftMetadata;
-  onMetadatUpdate: (obj: IZoraNftMetadata) => void;
+  onMetadatUpdate: (
+    obj: IZoraNftMetadata,
+    credits?: {
+      account: string;
+      percentAllocation: number;
+    }[]
+  ) => void;
   setIsStartListening: (isStartListening: boolean) => void;
   walletAddress: string;
 };
@@ -44,7 +50,13 @@ const NftInfoModule = ({
   const [nfts, setNfts] = useState<IZoraNftMetadata[]>();
   const onlyOnceRef = useRef(false);
   const [artistNftsError, setArtistNftsError] = useState<string>();
-  const [fetchChainType, setFetchChainType] = useState(0);
+  const [fetchChainType, setFetchChainType] = useState(1);
+  const [collectionsWithCredits, setCollectionsWithCredits] = useState<
+    {
+      credits: { account: string; percentAllocation: number }[];
+      collectionAddress: string;
+    }[]
+  >();
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -56,27 +68,43 @@ const NftInfoModule = ({
 
   const fetchNftMetadata = async () => {
     if (nftAddress) {
-      const token = await getNftMetadataByCollectionAddress(nftAddress);
+      const chain = fetchChainType ? "eth" : "optimism";
+      const token = await getNftMetadataByCollectionAddress(nftAddress, chain);
       if (token) {
-        onMetadatUpdate(token);
+        if (collectionsWithCredits) {
+          const index = collectionsWithCredits.findIndex(
+            (c) =>
+              c.collectionAddress.toLowerCase() ===
+              token.collectionAddress.toLowerCase()
+          );
+          const creditsInfo = collectionsWithCredits[index].credits;
+          onMetadatUpdate(token, creditsInfo);
+        } else {
+          onMetadatUpdate(token);
+        }
       }
     }
   };
 
   const fetchDeployedNftsFromWallet = async (_wallet: string) => {
     try {
-      const chainEndpoint = fetchChainType ? "eth" : "optimism";
+      const chain = fetchChainType ? "eth" : "optimism";
       const res = await axios.get(
-        `${import.meta.env.VITE_WALLET_NFT_SERVER}/${chainEndpoint}/${_wallet}`
+        `${import.meta.env.VITE_WALLET_NFT_SERVER}/${chain}/${_wallet}`
       );
-      const collectionAddresses = res.data.collectionAddresses as string[];
-      if (collectionAddresses.length === 0) {
+      const collections = res.data.collections as {
+        credits: { account: string; percentAllocation: number }[];
+        collectionAddress: string;
+      }[];
+      setCollectionsWithCredits(collections);
+      if (collections.length === 0) {
         setArtistNftsError(
           "No NFT releases found from this wallet on sound.xyz"
         );
       }
-      const tokensPromises = collectionAddresses.map((address) =>
-        getNftMetadataByCollectionAddress(address)
+      const addresses = collections.map((c) => c.collectionAddress);
+      const tokensPromises = addresses.map((address) =>
+        getNftMetadataByCollectionAddress(address, chain)
       );
       const responses = await Promise.all(tokensPromises);
       const data = responses.filter(
@@ -193,7 +221,19 @@ const NftInfoModule = ({
               key={nft.collectionAddress}
               spacing={2}
               sx={{ cursor: "pointer" }}
-              onClick={() => onMetadatUpdate(nft)}
+              onClick={() => {
+                if (collectionsWithCredits) {
+                  const index = collectionsWithCredits.findIndex(
+                    (c) =>
+                      c.collectionAddress.toLowerCase() ===
+                      nft.collectionAddress.toLowerCase()
+                  );
+                  const creditsInfo = collectionsWithCredits[index].credits;
+                  onMetadatUpdate(nft, creditsInfo);
+                } else {
+                  onMetadatUpdate(nft);
+                }
+              }}
             >
               <Box>
                 <img

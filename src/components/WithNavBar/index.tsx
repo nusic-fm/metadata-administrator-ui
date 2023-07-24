@@ -10,7 +10,7 @@ const WithNavbar = ({ children }: Props) => {
       <NavBar />
       <Box
         // height={"calc(100vh - 100px)"}
-        width="100%"
+        width="90%"
         // sx={{ overflowY: "auto" }}
       >
         {children}

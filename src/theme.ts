@@ -2,33 +2,45 @@ import { createTheme, responsiveFontSizes } from "@mui/material";
 import WebFont from "webfontloader";
 
 WebFont.load({
-    google: {
-      families: ["Space Mono", "Roboto"],
-    },
-  });
+  google: {
+    families: ["Space Mono", "Roboto"],
+  },
+});
+declare module "@mui/material/styles/createPalette" {
+  interface Palette {
+    customPaper: { main: string; border: string };
+  }
 
+  interface PaletteOptions {
+    customPaper?: { main: string; border: string };
+  }
+}
 const themeSettings = createTheme({
-    palette: {
-      mode: "dark",
-      primary: {
-        main: "#563FC8",
-        light: "#000000",
-      },
-      secondary: {
-        main: "#ffffff",
-      },
-      info: {
-        main: "#A794FF",
-      },
-      background: { paper: "#000" },
+  palette: {
+    mode: "dark",
+    primary: {
+      main: "#563FC8",
+      light: "#000000",
     },
-    typography: {
-      allVariants: {
-        color: "#fff",
-      },
-      fontFamily: `Space Mono , sans-serif`,
+    secondary: {
+      main: "#ffffff",
     },
-  });
-  const theme = responsiveFontSizes(themeSettings);
+    info: {
+      main: "#A794FF",
+    },
+    customPaper: {
+      main: "#141414",
+      border: "#272727",
+    },
+    background: { paper: "#000" },
+  },
+  typography: {
+    allVariants: {
+      color: "#fff",
+    },
+    fontFamily: `Space Mono , sans-serif`,
+  },
+});
+const theme = responsiveFontSizes(themeSettings);
 
-  export default theme;
+export default theme;

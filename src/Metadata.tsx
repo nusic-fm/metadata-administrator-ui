@@ -36,6 +36,9 @@ import { LoadingButton } from "@mui/lab";
 import NftInfoModule from "./components/NftInfoModule";
 import { IZoraNftMetadata } from "./models/IZora";
 import { createUrlFromCid, fetchAndConvertToBlob } from "./utils/helper";
+import { getOrCreateUserDoc, updateUserDoc } from "./services/db/user.service";
+import { IAliveUserDoc } from "./models/IUser";
+import { CreditsRow } from "./components/CreditsRows";
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
 
@@ -114,11 +117,12 @@ function Metadata() {
   // const navigate = useNavigate();
   const [selectedTabIndex, setSelectedTabIndex] = useState<number>(1);
   const [draftAvailable, setDraftAvailable] = useState(false);
-  const [artistMetadataAddress, setArtistMetadataAddress] = useState<string>();
+  // const [artistMetadataAddress, setArtistMetadataAddress] = useState<string>();
   const [deployingContract, setDeployingContract] = useState(false);
   const [nftAddress, setNftAddress] = useState<string>("");
   const [tokenId, setTokenId] = useState<string>("");
   const [nftMetadata, setNftMetadata] = useState<IZoraNftMetadata>();
+  const [userDoc, setUserDoc] = useState<IAliveUserDoc>();
 
   const { account, library } = useWeb3React();
 
@@ -143,7 +147,12 @@ function Metadata() {
     const metadataAddress = bn.toString();
     if (metadataAddress === "0x0000000000000000000000000000000000000000") {
     } else {
-      setArtistMetadataAddress(metadataAddress);
+      //TODO
+      await updateUserDoc(_account, {
+        artistContract: metadataAddress,
+      });
+      await fetchUserDoc(_account);
+      // setArtistMetadataAddress(metadataAddress);
     }
   };
 
@@ -161,6 +170,11 @@ function Metadata() {
     alert("Success");
   };
 
+  const fetchUserDoc = async (walletAddress: string) => {
+    const _userDoc = await getOrCreateUserDoc(walletAddress);
+    setUserDoc(_userDoc);
+  };
+
   useEffect(() => {
     const obj = getFromLocalStorage();
     if (obj) {
@@ -170,7 +184,8 @@ function Metadata() {
 
   useEffect(() => {
     if (account) {
-      findArtistContract(account);
+      fetchUserDoc(account);
+      // findArtistContract(account);
     }
   }, [account]);
 
@@ -368,9 +383,9 @@ function Metadata() {
     const ipfsCid = await client.put([metadataFile]);
     // const ipfsCid =
     //   "bafybeibctdasolo4773kquf6oxfqcmw2xpmr2mplizzbooidwcocspxvsm";
-    if (artistMetadataAddress) {
+    if (userDoc?.artistContract) {
       const metadataContract = new ethers.Contract(
-        artistMetadataAddress,
+        userDoc.artistContract,
         ArtistMetadataAbi.abi,
         library.getSigner()
       );
@@ -444,7 +459,13 @@ function Metadata() {
     // navigate("/");
     window.location.reload();
   };
-  const onMetdataFetch = async (obj: IZoraNftMetadata) => {
+  const onMetdataFetch = async (
+    obj: IZoraNftMetadata,
+    credits?: {
+      account: string;
+      percentAllocation: number;
+    }[]
+  ) => {
     setNftMetadata(obj);
     const url = createUrlFromCid(obj.content.url);
     // const duration = await getAudioDuration(url);
@@ -455,6 +476,19 @@ function Metadata() {
       // fullTrackFile: fileObj,
       // duration,
     });
+    if (credits) {
+      const _credits: {
+        [key: number]: CreditsRow;
+      } = {};
+      credits.map((credit, i) => {
+        _credits[i] = {
+          percentAllocation: credit.percentAllocation,
+          walletAddress: credit.account,
+        };
+      });
+      // const keysLength = Object.keys(_credits);
+      setArtistMetadataObj({ ...artistMetadataObj, credits: _credits });
+    }
   };
   return (
     <Box>
@@ -474,8 +508,8 @@ function Metadata() {
             >
               Music Metadata Information
             </Typography>
-            {artistMetadataAddress ? (
-              <Chip label={artistMetadataAddress} variant="outlined" />
+            {userDoc?.artistContract ? (
+              <Chip label={userDoc?.artistContract} variant="outlined" />
             ) : (
               <LoadingButton
                 color="info"
@@ -532,7 +566,7 @@ function Metadata() {
               nftMetadata={nftMetadata}
               onMetadatUpdate={onMetdataFetch}
               setIsStartListening={setIsStartListening}
-              walletAddress={account}
+              walletAddress={"0x9cfad4326eb84396b7610987eee45fd8236ddb30"}
             />
           )}
         </Box>

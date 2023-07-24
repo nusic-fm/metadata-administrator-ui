@@ -169,7 +169,7 @@ export const getNftMetadataByToken = async (
 
 export const getNftMetadataByCollectionAddress = async (
   address: string,
-  chain?: string
+  chain: "optimism" | "eth"
 ): Promise<IZoraNftMetadata | null> => {
   const endpoint = "https://api.zora.co/graphql";
   const headers = {
@@ -182,6 +182,8 @@ export const getNftMetadataByCollectionAddress = async (
       query: tokensFromCollectionAddress,
       variables: {
         address: [address],
+        network: chain === "eth" ? "ETHEREUM" : "OPTIMISM",
+        chain: chain === "eth" ? "MAINNET" : "OPTIMISM_MAINNET",
       },
     };
 

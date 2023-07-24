@@ -20,4 +20,5 @@ export type IAliveUserDoc = {
   walletAddress: string;
   bio?: string;
   pfp?: string;
+  artistContract?: string;
 };

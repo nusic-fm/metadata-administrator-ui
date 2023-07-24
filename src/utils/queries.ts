@@ -412,10 +412,10 @@ export const tokenMetadataQuery = `#graphql
     `;
 
 export const tokensFromCollectionAddress = `#graphql
-  query MyQuery($address: [String!]) {
+  query MyQuery($address: [String!] $network: Network! $chain: Chain!) {
     tokens(
         where: {collectionAddresses: $address}
-        networks: {network: OPTIMISM, chain: OPTIMISM_MAINNET}
+        networks: {network: $network, chain: $chain}
         pagination: {limit: 1}
     ) {
         nodes {

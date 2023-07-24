@@ -28,7 +28,7 @@ const getOrCreateUserDoc = async (
 
 const updateUserDoc = async (
   walletAddress: string,
-  userDoc: { bio?: string; userName?: string }
+  userDoc: Partial<IAliveUserDoc>
 ): Promise<void> => {
   const d = doc(db, DB_NAME, walletAddress);
   await updateDoc(d, userDoc);
