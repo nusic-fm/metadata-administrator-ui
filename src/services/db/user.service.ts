@@ -3,12 +3,11 @@ import {
   doc,
   getDoc,
   getDocs,
-  limit,
-  query,
   setDoc,
   updateDoc,
+  writeBatch,
 } from "firebase/firestore";
-import { IAliveUserDoc, IUserDoc } from "../../models/IUser";
+import { IAliveUserDoc, ReleaseSoundXyz } from "../../models/IUser";
 import { db } from "../firebase.service";
 
 const DB_NAME = "users";
@@ -34,4 +33,40 @@ const updateUserDoc = async (
   await updateDoc(d, userDoc);
 };
 
-export { getOrCreateUserDoc, updateUserDoc };
+const SUB_DB_NAME = "releases";
+const getArtistReleases = async (
+  walletAddress: string
+): Promise<null | ReleaseSoundXyz[]> => {
+  const d = collection(db, DB_NAME, walletAddress, SUB_DB_NAME);
+  const docsRef = await getDocs(d);
+  if (docsRef.size) {
+    return docsRef.docs.map((d) => d.data()) as ReleaseSoundXyz[];
+  } else {
+    return null;
+  }
+};
+
+const updateArtistReleases = async (
+  walletAddress: string,
+  colletionsWithCredits: ReleaseSoundXyz[]
+) => {
+  const batch = writeBatch(db);
+  colletionsWithCredits.map((c) => {
+    const ref = doc(
+      db,
+      DB_NAME,
+      walletAddress,
+      SUB_DB_NAME,
+      c.collectionAddress
+    );
+    batch.set(ref, c);
+  });
+  await batch.commit();
+};
+
+export {
+  getOrCreateUserDoc,
+  updateUserDoc,
+  getArtistReleases,
+  updateArtistReleases,
+};

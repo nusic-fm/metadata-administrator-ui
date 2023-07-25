@@ -22,3 +22,8 @@ export type IAliveUserDoc = {
   pfp?: string;
   artistContract?: string;
 };
+
+export type ReleaseSoundXyz = {
+  credits: { account: string; percentAllocation: number }[];
+  collectionAddress: string;
+};

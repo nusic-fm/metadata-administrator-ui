@@ -20,6 +20,11 @@ import {
 import axios from "axios";
 import { useState } from "react";
 import { useRef } from "react";
+import {
+  getArtistReleases,
+  updateArtistReleases,
+} from "../../services/db/user.service";
+import { ReleaseSoundXyz } from "../../models/IUser";
 
 type Props = {
   addressProps: [string, (str: string) => void];
@@ -51,12 +56,8 @@ const NftInfoModule = ({
   const onlyOnceRef = useRef(false);
   const [artistNftsError, setArtistNftsError] = useState<string>();
   const [fetchChainType, setFetchChainType] = useState(1);
-  const [collectionsWithCredits, setCollectionsWithCredits] = useState<
-    {
-      credits: { account: string; percentAllocation: number }[];
-      collectionAddress: string;
-    }[]
-  >();
+  const [collectionsWithCredits, setCollectionsWithCredits] =
+    useState<ReleaseSoundXyz[]>();
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -88,30 +89,34 @@ const NftInfoModule = ({
 
   const fetchDeployedNftsFromWallet = async (_wallet: string) => {
     try {
+      // TODO: Fetch from user/releases/...
+      let creditsCollections = await getArtistReleases(_wallet);
       const chain = fetchChainType ? "eth" : "optimism";
-      const res = await axios.get(
-        `${import.meta.env.VITE_WALLET_NFT_SERVER}/${chain}/${_wallet}`
-      );
-      const collections = res.data.collections as {
-        credits: { account: string; percentAllocation: number }[];
-        collectionAddress: string;
-      }[];
-      setCollectionsWithCredits(collections);
-      if (collections.length === 0) {
+
+      if (!creditsCollections) {
+        const res = await axios.get(
+          `${import.meta.env.VITE_WALLET_NFT_SERVER}/${chain}/${_wallet}`
+        );
+        creditsCollections = res.data.collections as ReleaseSoundXyz[];
+        updateArtistReleases(_wallet, creditsCollections);
+      }
+
+      setCollectionsWithCredits(creditsCollections);
+      if (creditsCollections.length === 0) {
         setArtistNftsError(
           "No NFT releases found from this wallet on sound.xyz"
         );
       }
-      const addresses = collections.map((c) => c.collectionAddress);
+      const addresses = creditsCollections.map((c) => c.collectionAddress);
       const tokensPromises = addresses.map((address) =>
         getNftMetadataByCollectionAddress(address, chain)
       );
       const responses = await Promise.all(tokensPromises);
-      const data = responses.filter(
+      const nftsWithMetadta = responses.filter(
         (response) => !!response
       ) as IZoraNftMetadata[];
       // onMetadatUpdate(data);
-      setNfts(data);
+      setNfts(nftsWithMetadta);
     } catch (e) {
       setArtistNftsError(
         "Failed to retrieve your NFT releases from sound.xyz, kindly try again later"
