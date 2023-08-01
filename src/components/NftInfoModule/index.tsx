@@ -15,16 +15,14 @@ import { IZoraNftMetadata } from "../../models/IZora";
 import { createUrlFromCid } from "../../utils/helper";
 import {
   getNftMetadataByCollectionAddress,
+  getNftMetadataByCollectionAddressAndTokenIds,
   // getNftMetadataByToken,
 } from "../../utils/zora";
 import axios from "axios";
 import { useState } from "react";
 import { useRef } from "react";
-import {
-  getArtistReleases,
-  updateArtistReleases,
-} from "../../services/db/user.service";
-import { ReleaseSoundXyz } from "../../models/IUser";
+import { updateUserDoc } from "../../services/db/user.service";
+import { ArtistReleases, ReleaseSoundXyz } from "../../models/IUser";
 
 type Props = {
   addressProps: [string, (str: string) => void];
@@ -39,6 +37,7 @@ type Props = {
   ) => void;
   setIsStartListening: (isStartListening: boolean) => void;
   walletAddress: string;
+  releases?: ArtistReleases;
 };
 
 const NftInfoModule = ({
@@ -48,6 +47,7 @@ const NftInfoModule = ({
   onMetadatUpdate,
   setIsStartListening,
   walletAddress,
+  releases,
 }: Props) => {
   const [nftAddress, setNftAddress] = addressProps;
   const [tokenId, setTokenId] = tokenProps;
@@ -58,6 +58,8 @@ const NftInfoModule = ({
   const [fetchChainType, setFetchChainType] = useState(1);
   const [collectionsWithCredits, setCollectionsWithCredits] =
     useState<ReleaseSoundXyz[]>();
+  const [artistReleasesLocal, setArtistReleaseseLocal] =
+    useState<ArtistReleases>();
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -89,40 +91,91 @@ const NftInfoModule = ({
 
   const fetchDeployedNftsFromWallet = async (_wallet: string) => {
     try {
-      // TODO: Fetch from user/releases/...
-      let creditsCollections = await getArtistReleases(_wallet);
-      const chain = fetchChainType ? "eth" : "optimism";
+      // CATALOG Collections
+      // await fetchCatalogNfts(_wallet)
 
-      if (!creditsCollections) {
+      // Firestore
+      // let creditsCollections = await getArtistReleases(_wallet);
+      const chain = fetchChainType ? "eth" : "optimism";
+      let _artistRelease = releases;
+      if (!releases) {
         const res = await axios.get(
           `${import.meta.env.VITE_WALLET_NFT_SERVER}/${chain}/${_wallet}`
         );
-        creditsCollections = res.data.collections as ReleaseSoundXyz[];
-        updateArtistReleases(_wallet, creditsCollections);
+        _artistRelease = res.data as ArtistReleases;
+        setArtistReleaseseLocal(_artistRelease);
+        updateUserDoc(_wallet, { releases: _artistRelease });
       }
 
-      setCollectionsWithCredits(creditsCollections);
-      if (creditsCollections.length === 0) {
+      // setCollectionsWithCredits(creditsCollections);
+
+      let _nftsMetadata = [];
+
+      // Fetch SoundXYZ metadata
+      if (_artistRelease?.soundCollections.length) {
+        const addresses = _artistRelease?.soundCollections.map(
+          (c) => c.collectionAddress
+        );
+        const tokensPromises = addresses.map((address) =>
+          getNftMetadataByCollectionAddress(address, chain)
+        );
+        const responses = await Promise.all(tokensPromises);
+        const nftsWithMetadta = responses.filter(
+          (response) => !!response
+        ) as IZoraNftMetadata[];
+        _nftsMetadata.push(...nftsWithMetadta);
+        // onMetadatUpdate(data);
+      }
+      // Catalog SoundXYZ metadata
+      if (_artistRelease?.catalogCollections) {
+        const { collectionAddress, tokenIds } =
+          _artistRelease?.catalogCollections;
+        const tokens = tokenIds.map((tokenId) => ({
+          address: collectionAddress,
+          tokenId,
+        }));
+        const nodesOrNull = await getNftMetadataByCollectionAddressAndTokenIds(
+          tokens
+        );
+        if (nodesOrNull) {
+          _nftsMetadata.push(...nodesOrNull);
+        }
+      }
+      if (!_nftsMetadata.length) {
         setArtistNftsError(
           "No NFT releases found from this wallet on sound.xyz"
         );
       }
-      const addresses = creditsCollections.map((c) => c.collectionAddress);
-      const tokensPromises = addresses.map((address) =>
-        getNftMetadataByCollectionAddress(address, chain)
-      );
-      const responses = await Promise.all(tokensPromises);
-      const nftsWithMetadta = responses.filter(
-        (response) => !!response
-      ) as IZoraNftMetadata[];
-      // onMetadatUpdate(data);
-      setNfts(nftsWithMetadta);
+      setNfts(_nftsMetadata);
     } catch (e) {
       setArtistNftsError(
         "Failed to retrieve your NFT releases from sound.xyz, kindly try again later"
       );
     }
   };
+  // const fetchCatalogNfts = async (_walletAddress: string) => {
+  //   const ownersJson = catalogJson as {
+  //     [key: string]: { tokenIds: string[]; collectionAddress: string };
+  //   };
+  //   const ownerInfo = ownersJson[_walletAddress];
+  //   if (!!ownerInfo) {
+  //     const { collectionAddress, tokenIds } = ownerInfo;
+  //     const tokens = tokenIds.map((tokenId) => ({
+  //       address: collectionAddress,
+  //       tokenId,
+  //     }));
+  //     const nodesOrNull = await getNftMetadataByCollectionAddressAndTokenIds(
+  //       tokens
+  //     );
+  //     if (nodesOrNull) {
+  //       const nftsWithMetadta = nodesOrNull.filter(
+  //         (node) => !!node
+  //       ) as IZoraNftMetadata[];
+  //       // onMetadatUpdate(data);
+  //       setNfts(nftsWithMetadta);
+  //     }
+  //   }
+  // };
 
   useEffect(() => {
     fetchNftMetadata();
@@ -154,17 +207,6 @@ const NftInfoModule = ({
         alignItems="center"
         flexWrap={"wrap"}
       >
-        <FormControl color="info" size="small">
-          <InputLabel id="demo-simple-select-label">Chain</InputLabel>
-          <Select
-            value={fetchChainType}
-            label="Chain"
-            onChange={(e) => setFetchChainType(Number(e.target.value))}
-          >
-            <MenuItem value={0}>Optimism</MenuItem>
-            <MenuItem value={1}>Ethereum</MenuItem>
-          </Select>
-        </FormControl>
         {nftMetadata ? (
           <Stack direction={"row"} spacing={2}>
             <Box>
@@ -224,31 +266,54 @@ const NftInfoModule = ({
           nfts?.map((nft) => (
             <Stack
               key={nft.collectionAddress}
-              spacing={2}
-              sx={{ cursor: "pointer" }}
-              onClick={() => {
-                if (collectionsWithCredits) {
-                  const index = collectionsWithCredits.findIndex(
-                    (c) =>
-                      c.collectionAddress.toLowerCase() ===
-                      nft.collectionAddress.toLowerCase()
-                  );
-                  const creditsInfo = collectionsWithCredits[index].credits;
-                  onMetadatUpdate(nft, creditsInfo);
-                } else {
-                  onMetadatUpdate(nft);
-                }
-              }}
+              spacing={1}
+              // sx={{ cursor: "pointer" }}
             >
-              <Box>
-                <img
-                  src={createUrlFromCid(nft.image.url)}
-                  alt=""
-                  width={150}
-                  style={{ borderRadius: "6px" }}
-                />
-              </Box>
-              <Typography align="center">{nft.collectionName}</Typography>
+              <Stack width={200} height={200} position="relative">
+                <Box>
+                  <img
+                    src={createUrlFromCid(nft.image.url)}
+                    alt=""
+                    width={"100%"}
+                    style={{ borderRadius: "6px" }}
+                  />
+                </Box>
+                <Box
+                  mt={0}
+                  position={"absolute"}
+                  top={0}
+                  left={0}
+                  zIndex={9}
+                  width="100%"
+                  height={"100%"}
+                  display="flex"
+                  alignItems={"end"}
+                  sx={{ background: "rgba(0,0,0,0.5)" }}
+                >
+                  <Typography align="center" fontWeight={"900"} width="100%">
+                    {nft.name}
+                  </Typography>
+                </Box>
+              </Stack>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  if (collectionsWithCredits) {
+                    const index = collectionsWithCredits.findIndex(
+                      (c) =>
+                        c.collectionAddress.toLowerCase() ===
+                        nft.collectionAddress.toLowerCase()
+                    );
+                    const creditsInfo = collectionsWithCredits[index].credits;
+                    onMetadatUpdate(nft, creditsInfo);
+                  } else {
+                    onMetadatUpdate(nft);
+                  }
+                }}
+              >
+                Edit Metadata
+              </Button>
             </Stack>
           ))
         )}
@@ -257,20 +322,39 @@ const NftInfoModule = ({
         )}
       </Stack>
 
-      <Stack ml={4} spacing={2} justifyContent="center">
-        <Typography variant="body2" fontWeight={900}>
-          Don't find your releases here? Provide the address
-        </Typography>
-        <TextField
-          fullWidth
-          label="NFT Address"
-          size="small"
-          value={nftAddress}
-          onChange={(e) => {
-            setNftAddress(e.target.value);
-            setArtistNftsError(undefined);
-          }}
-        />
+      <Stack
+        ml={4}
+        spacing={2}
+        justifyContent="space-between"
+        alignItems="start"
+      >
+        <FormControl color="info" size="small">
+          <InputLabel id="demo-simple-select-label">Chain</InputLabel>
+          <Select
+            value={fetchChainType}
+            label="Chain"
+            onChange={(e) => setFetchChainType(Number(e.target.value))}
+          >
+            <MenuItem value={0}>Optimism</MenuItem>
+            <MenuItem value={1}>Ethereum</MenuItem>
+          </Select>
+        </FormControl>
+        <Stack spacing={2}>
+          <Typography variant="body2" fontWeight={900}>
+            Don't find your releases here? Provide the address
+          </Typography>
+          <TextField
+            fullWidth
+            label="NFT Address"
+            size="small"
+            value={nftAddress}
+            variant="filled"
+            onChange={(e) => {
+              setNftAddress(e.target.value);
+              setArtistNftsError(undefined);
+            }}
+          />
+        </Stack>
       </Stack>
     </Stack>
   );

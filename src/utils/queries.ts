@@ -412,11 +412,39 @@ export const tokenMetadataQuery = `#graphql
     `;
 
 export const tokensFromCollectionAddress = `#graphql
-  query MyQuery($address: [String!] $network: Network! $chain: Chain!) {
+query MyQuery($address: [String!] $network: Network! $chain: Chain!) {
+  tokens(
+      where: {collectionAddresses: $address}
+      networks: {network: $network, chain: $chain}
+      pagination: {limit: 1}
+  ) {
+      nodes {
+          token {
+              collectionName
+              tokenId
+              name
+              content {
+                  mimeType
+                  url
+              }
+              collectionAddress
+              image {
+                  mimeType
+                  url
+              }
+              # lastRefreshTime
+              metadata
+              tokenUrl
+          }
+      }
+  }
+}
+  `;
+
+export const tokensFromTokenIds = `#graphql
+  query MyQuery($tokens: [TokenInput!]) {
     tokens(
-        where: {collectionAddresses: $address}
-        networks: {network: $network, chain: $chain}
-        pagination: {limit: 1}
+        where: {tokens: $tokens}
     ) {
         nodes {
             token {

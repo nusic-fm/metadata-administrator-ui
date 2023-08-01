@@ -566,7 +566,10 @@ function Metadata() {
               nftMetadata={nftMetadata}
               onMetadatUpdate={onMetdataFetch}
               setIsStartListening={setIsStartListening}
-              walletAddress={"0x9cfad4326eb84396b7610987eee45fd8236ddb30"}
+              walletAddress={account}
+              // Catalog: 0x081Bc58a9538b1313e93F6bBC6119Ac6434FbE05
+              // Sound: 0x9cfad4326eb84396b7610987eee45fd8236ddb30
+              releases={userDoc?.releases}
             />
           )}
         </Box>

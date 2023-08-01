@@ -21,9 +21,19 @@ export type IAliveUserDoc = {
   bio?: string;
   pfp?: string;
   artistContract?: string;
+  releases?: ArtistReleases;
 };
 
 export type ReleaseSoundXyz = {
   credits: { account: string; percentAllocation: number }[];
   collectionAddress: string;
+};
+export type ReleaseCatalog = {
+  collectionAddress: string;
+  tokenIds: string[];
+};
+
+export type ArtistReleases = {
+  soundCollections: ReleaseSoundXyz[];
+  catalogCollections?: ReleaseCatalog;
 };
