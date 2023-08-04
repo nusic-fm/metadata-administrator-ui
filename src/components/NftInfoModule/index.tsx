@@ -2,6 +2,7 @@ import {
   Button,
   FormControl,
   InputLabel,
+  LinearProgress,
   MenuItem,
   Popover,
   Select,
@@ -60,6 +61,7 @@ const NftInfoModule = ({
     useState<ReleaseSoundXyz[]>();
   const [artistReleasesLocal, setArtistReleaseseLocal] =
     useState<ArtistReleases>();
+  const [loadingNftReleases, setLoadingNftReleases] = useState(false);
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -96,6 +98,7 @@ const NftInfoModule = ({
 
       // Firestore
       // let creditsCollections = await getArtistReleases(_wallet);
+      setLoadingNftReleases(true);
       const chain = fetchChainType ? "eth" : "optimism";
       let _artistRelease = releases;
       if (!releases) {
@@ -145,12 +148,16 @@ const NftInfoModule = ({
         setArtistNftsError(
           "No NFT releases found from this wallet on sound.xyz"
         );
+      } else {
+        setArtistNftsError(undefined);
       }
       setNfts(_nftsMetadata);
     } catch (e) {
       setArtistNftsError(
         "Failed to retrieve your NFT releases from sound.xyz, kindly try again later"
       );
+    } finally {
+      setLoadingNftReleases(false);
     }
   };
   // const fetchCatalogNfts = async (_walletAddress: string) => {
@@ -197,15 +204,57 @@ const NftInfoModule = ({
   return (
     <Stack
       spacing={2}
-      direction="row"
-      justifyContent={"space-between"}
-      alignItems="center"
+      // direction="row"
+      // justifyContent={"space-between"}
+      // alignItems="center"
     >
+      <Stack
+        spacing={2}
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+      >
+        <Typography variant="h6" fontFamily={"Roboto"}>
+          Select a Music collection to edit{" "}
+        </Typography>
+        <Stack direction={"row"} spacing={2}>
+          <FormControl color="info" size="small">
+            <InputLabel id="demo-simple-select-label">Chain</InputLabel>
+            <Select
+              value={fetchChainType}
+              label="Chain"
+              onChange={(e) => setFetchChainType(Number(e.target.value))}
+            >
+              <MenuItem value={0}>Optimism</MenuItem>
+              <MenuItem value={1}>Ethereum</MenuItem>
+            </Select>
+          </FormControl>
+          {/* <Stack spacing={2}> */}
+          {/* <Typography variant="body2" fontWeight={900}>
+            Don't find your releases here? Provide the address
+          </Typography> */}
+          <TextField
+            label="Enter NFT Address"
+            size="small"
+            color="info"
+            value={nftAddress}
+            // variant="outlined"
+            onChange={(e) => {
+              setNftAddress(e.target.value);
+              setArtistNftsError(undefined);
+            }}
+            helperText="Don't find your releases?"
+          />
+        </Stack>
+        {/* </Stack> */}
+      </Stack>
+      {loadingNftReleases && <LinearProgress />}
       <Stack
         direction={"row"}
         spacing={2}
         alignItems="center"
-        flexWrap={"wrap"}
+        // flexWrap={"wrap"}
+        sx={{ overflowX: "auto" }}
       >
         {nftMetadata ? (
           <Stack direction={"row"} spacing={2}>
@@ -320,41 +369,6 @@ const NftInfoModule = ({
         {artistNftsError && (
           <Typography color={"error"}>{artistNftsError}</Typography>
         )}
-      </Stack>
-
-      <Stack
-        ml={4}
-        spacing={2}
-        justifyContent="space-between"
-        alignItems="start"
-      >
-        <FormControl color="info" size="small">
-          <InputLabel id="demo-simple-select-label">Chain</InputLabel>
-          <Select
-            value={fetchChainType}
-            label="Chain"
-            onChange={(e) => setFetchChainType(Number(e.target.value))}
-          >
-            <MenuItem value={0}>Optimism</MenuItem>
-            <MenuItem value={1}>Ethereum</MenuItem>
-          </Select>
-        </FormControl>
-        <Stack spacing={2}>
-          <Typography variant="body2" fontWeight={900}>
-            Don't find your releases here? Provide the address
-          </Typography>
-          <TextField
-            fullWidth
-            label="NFT Address"
-            size="small"
-            value={nftAddress}
-            variant="filled"
-            onChange={(e) => {
-              setNftAddress(e.target.value);
-              setArtistNftsError(undefined);
-            }}
-          />
-        </Stack>
       </Stack>
     </Stack>
   );

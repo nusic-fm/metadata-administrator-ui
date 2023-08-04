@@ -506,7 +506,7 @@ function Metadata() {
               // align="left"
               fontFamily={"Roboto"}
             >
-              Music Metadata Information
+              Music Metadata Administration
             </Typography>
             {userDoc?.artistContract ? (
               <Chip label={userDoc?.artistContract} variant="outlined" />
@@ -522,9 +522,6 @@ function Metadata() {
                 Deploy your Artist Contract
               </LoadingButton>
             )}
-            {/* <Typography variant="caption" fontStyle={"italic"} color="gray">
-                saved
-              </Typography> */}
           </Box>
           {draftAvailable && !isStartListening && (
             <Button
@@ -558,7 +555,12 @@ function Metadata() {
             </Button>
           )}
         </Box>
-        <Box mt={2} p={2} border="1px solid #1d1d1d" borderRadius={4}>
+        <Box
+          mt={2}
+          p={2}
+          //  border="1px solid #1d1d1d"
+          borderRadius={4}
+        >
           {account && (
             <NftInfoModule
               addressProps={[nftAddress, setNftAddress]}
