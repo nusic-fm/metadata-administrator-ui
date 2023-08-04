@@ -27,10 +27,10 @@ export type SongMetadataObj = {
   title: string;
   album: string;
   projectType: string;
-  genrePrimary: never[];
-  genreSecondary: never[];
-  subGenre: never[];
-  songMoods: never[];
+  genrePrimary: string[];
+  genreSecondary: string[];
+  subGenre: string[];
+  songMoods: string[];
   songType: string;
   key: string;
   isrcCode: string;
@@ -43,7 +43,7 @@ export type SongMetadataObj = {
   language: string;
   explicitLyrics: boolean;
   locationOfCreation: {
-    [key: number]: {
+    [key: string]: {
       studioName?: string;
       city?: string;
       state?: string;

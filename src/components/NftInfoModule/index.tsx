@@ -74,6 +74,7 @@ const NftInfoModule = ({
   const fetchNftMetadata = async () => {
     if (nftAddress) {
       const chain = fetchChainType ? "eth" : "optimism";
+      setLoadingNftReleases(true);
       const token = await getNftMetadataByCollectionAddress(nftAddress, chain);
       if (token) {
         if (collectionsWithCredits) {
@@ -88,6 +89,7 @@ const NftInfoModule = ({
           onMetadatUpdate(token);
         }
       }
+      setLoadingNftReleases(false);
     }
   };
 

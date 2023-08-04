@@ -23,10 +23,12 @@ import PauseRounded from "@mui/icons-material/PauseRounded";
 import PlayArrowRounded from "@mui/icons-material/PlayArrowRounded";
 import ZoomOut from "@mui/icons-material/ZoomOut";
 import ZoomIn from "@mui/icons-material/ZoomIn";
-import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
-import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+// import PlayCircleFilledWhiteOutlinedIcon from "@mui/icons-material/PlayCircleFilledWhiteOutlined";
+// import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import { WaveSurferOptions } from "wavesurfer.js";
 import { convertSecondsToHHMMSS } from "../../utils/helper";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 
 const SectionNames = [
   "Intro",
@@ -87,6 +89,7 @@ const WaveSurferPlayer = ({
   const [isWaveformReady, setIsWaveformReady] = useState(true);
   const [isMetronomePlaying, setIsMetronomePlaying] = useState(false);
   const intervalRef = useRef<NodeJS.Timer | null>(null);
+  const sectionsScrollRef = useRef<HTMLElement | null>(null);
 
   const playTickSound = () => {
     const audio = new Audio("beep.wav");
@@ -226,6 +229,12 @@ const WaveSurferPlayer = ({
       resize: true,
     });
     setSectionsObj(newSectionsObj);
+    setTimeout(() => {
+      if (sectionsScrollRef.current) {
+        sectionsScrollRef.current.scrollLeft =
+          sectionsScrollRef.current.scrollWidth;
+      }
+    }, 100);
   };
 
   // On play button click
@@ -248,6 +257,10 @@ const WaveSurferPlayer = ({
     }
   };
 
+  // const onRegionOut = useCallback((region: Region) => {
+  //   if (region.end) region.play();
+  // }, []);
+
   // Initialize wavesurfer when the container mounts
   // or any of the props change
   useEffect(() => {
@@ -268,9 +281,14 @@ const WaveSurferPlayer = ({
       subscriptions.forEach((unsub) => unsub());
     };
   }, [wavesurfer]);
+
   useEffect(() => {
     if (!wavesurfer) return;
-    const subscriptions = [regionsWs.current.on("region-updated", callback)];
+
+    const subscriptions = [
+      regionsWs.current.on("region-updated", callback),
+      // regionsWs.current.on("region-out", onRegionOut),
+    ];
 
     return () => {
       subscriptions.forEach((unsub) => unsub());
@@ -387,13 +405,35 @@ const WaveSurferPlayer = ({
             /> */}
           </Box>
         </Box>
-        <Box display="flex" gap={3} flexWrap="wrap" mt={2}>
+        <Box
+          display="flex"
+          gap={3}
+          sx={{ overflowX: "auto", width: "100%" }}
+          mt={2}
+          ref={sectionsScrollRef}
+        >
           {Object.values(sectionsObj).map((section, i) => (
-            <Card key={i}>
-              <Box p={2}>
-                <Box mb={1}>
-                  {/* <Typography>Section Name</Typography> */}
+            <Card
+              key={i}
+              sx={{
+                bgcolor: "#292929",
+                border: "1px solid #626262",
+                width: "280px",
+                flexShrink: 0,
+                mb: 2,
+              }}
+            >
+              <Box py={2} px={1}>
+                <Box
+                  pb={1}
+                  mb={1}
+                  display="flex"
+                  justifyContent={"space-between"}
+                  alignItems="center"
+                  borderBottom={"1px solid #383838"}
+                >
                   <Autocomplete
+                    sx={{ flexBasis: "60%" }}
                     freeSolo
                     options={[
                       "Intro",
@@ -406,6 +446,7 @@ const WaveSurferPlayer = ({
                       "Hook",
                       "Outro",
                     ]}
+                    size="small"
                     value={section.name}
                     onChange={(e, newValue) => {
                       if (!newValue) return;
@@ -421,36 +462,25 @@ const WaveSurferPlayer = ({
                       <TextField {...params} label="Section Name" />
                     )}
                   ></Autocomplete>
-                  {/* <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">
-                      Section Name
-                    </InputLabel>
-                    <Select
-                      size="small"
-                      label="Section Name"
-                      value={section.name}
-                      onChange={(e) => {
-                        const newSectionsObj = { ...sectionsObj };
-                        const id = Object.keys(newSectionsObj).filter(
-                          (key) => key === section.id.toString()
-                        )[0];
-                        newSectionsObj[id].name = e.target.value;
-                        setSectionsObj(newSectionsObj);
-                      }}
-                    >
-                      <MenuItem value={"Intro"}>Intro</MenuItem>
-                      <MenuItem value={"Verse"}>Verse</MenuItem>
-                      <MenuItem value={"Pre-Chorus"}>Pre-Chorus</MenuItem>
-                      <MenuItem value={"Chorus"}>Chorus</MenuItem>
-                      <MenuItem value={"Post-Chorus"}>Post-Chorus</MenuItem>
-                      <MenuItem value={"Breakdown"}>Breakdown</MenuItem>
-                      <MenuItem value={"Bridge"}>Bridge</MenuItem>
-                      <MenuItem value={"Hook"}>Hook</MenuItem>
-                      <MenuItem value={"Outro"}>Outro</MenuItem>
-                    </Select>
-                  </FormControl> */}
+                  <IconButton
+                    size="small"
+                    sx={{ background: "#683131" }}
+                    color="error"
+                    onClick={() => {
+                      const newObj = { ...sectionsObj };
+                      delete newObj[i];
+                      setSectionsObj(newObj);
+                      regionsWs.current
+                        .getRegions()
+                        .filter((r) => r.id === section.id.toString())[0]
+                        .remove();
+                    }}
+                    disabled={i !== Object.keys(sectionsObj).length - 1}
+                  >
+                    <DeleteForeverIcon />
+                  </IconButton>
                 </Box>
-                <Box display="flex" alignItems="center" gap={1}>
+                <Box display="flex" alignItems="center" gap={1} mt={3}>
                   <Typography>End Measure</Typography>
                   <TextField
                     type="number"
@@ -595,12 +625,11 @@ const WaveSurferPlayer = ({
                   ></TextField>
                 </Box> */}
                 {section.end > 0 && (
-                  <Box mt={2}>
-                    <Box display="flex" alignItems="center">
-                      <Typography>
-                        {section.start.toFixed(2)}s - {section.end.toFixed(2)}s
-                      </Typography>
+                  <Box mt={3}>
+                    <Box display="flex" alignItems="center" gap={2}>
                       <IconButton
+                        size="small"
+                        sx={{ background: "#6756BA" }}
                         onClick={() => {
                           regionsWs.current
                             .getRegions()
@@ -608,22 +637,12 @@ const WaveSurferPlayer = ({
                             .play();
                         }}
                       >
-                        <PlayCircleFilledWhiteOutlinedIcon />
+                        <PlayArrowIcon />
                       </IconButton>
-                      <IconButton
-                        onClick={() => {
-                          const newObj = { ...sectionsObj };
-                          delete newObj[i];
-                          setSectionsObj(newObj);
-                          regionsWs.current
-                            .getRegions()
-                            .filter((r) => r.id === section.id.toString())[0]
-                            .remove();
-                        }}
-                        disabled={i !== Object.keys(sectionsObj).length - 1}
-                      >
-                        <DeleteOutlineIcon />
-                      </IconButton>
+                      <Typography fontFamily={"Roboto"}>
+                        {section.start.toFixed(2)}s - {section.end.toFixed(2)}s
+                      </Typography>
+
                       {/* <IconButton
                         onClick={() => {
                           wavesurferIns.current.regions.list[i].playLoop();
