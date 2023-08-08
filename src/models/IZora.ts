@@ -69,15 +69,15 @@ export interface IZoraData {
 export type IZoraNftMetadata = {
   collectionAddress: string;
   collectionName: string;
-  name: string;
-  content: {
+  name?: string;
+  content?: {
     url: string;
     size: string;
   };
-  image: {
+  image?: {
     url: string;
     size: string;
   };
   tokenUrl: string;
-  metadata: any;
+  metadata?: any;
 };

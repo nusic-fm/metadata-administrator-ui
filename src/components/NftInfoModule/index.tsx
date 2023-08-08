@@ -56,7 +56,7 @@ const NftInfoModule = ({
   const [nfts, setNfts] = useState<IZoraNftMetadata[]>();
   const onlyOnceRef = useRef(false);
   const [artistNftsError, setArtistNftsError] = useState<string>();
-  const [fetchChainType, setFetchChainType] = useState(1);
+  const [fetchChainType, setFetchChainType] = useState(0);
   const [collectionsWithCredits, setCollectionsWithCredits] =
     useState<ReleaseSoundXyz[]>();
   const [artistReleasesLocal, setArtistReleaseseLocal] =
@@ -262,7 +262,7 @@ const NftInfoModule = ({
           <Stack direction={"row"} spacing={2}>
             <Box>
               <img
-                src={createUrlFromCid(nftMetadata.image.url)}
+                src={createUrlFromCid(nftMetadata.image?.url)}
                 alt=""
                 width={100}
                 style={{ borderRadius: "6px" }}
@@ -318,12 +318,13 @@ const NftInfoModule = ({
             <Stack
               key={nft.collectionAddress}
               spacing={1}
+              mb={1}
               // sx={{ cursor: "pointer" }}
             >
               <Stack width={200} height={200} position="relative">
                 <Box>
                   <img
-                    src={createUrlFromCid(nft.image.url)}
+                    src={createUrlFromCid(nft.image?.url)}
                     alt=""
                     width={"100%"}
                     style={{ borderRadius: "6px" }}
