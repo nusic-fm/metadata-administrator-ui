@@ -41,7 +41,7 @@ const NftsByWallet = ({ onConnect, onClose, tokenId }: Props) => {
   const onInsert = async (url: string) => {
     setIsPreviewLoading(true);
     const res = await axios.post(
-      `${import.meta.env.NEXT_PUBLIC_SERVER}/overlay?url=${url}`,
+      `${import.meta.env.VITE_IMAGE_CONVERSION}/overlay?url=${url}`,
       {},
       { responseType: "arraybuffer" }
     );
@@ -67,7 +67,7 @@ const NftsByWallet = ({ onConnect, onClose, tokenId }: Props) => {
 
   const onInject = async () => {
     const nftContract = new ethers.Contract(
-      import.meta.env.NEXT_PUBLIC_ETH_ALIVE_ADDRESS as string,
+      import.meta.env.VITE_ALIVE_ADDRESS as string,
       [
         {
           inputs: [
@@ -93,7 +93,7 @@ const NftsByWallet = ({ onConnect, onClose, tokenId }: Props) => {
     if (selectedFile) {
       setIsTxLoading(true);
       const client = new Web3Storage({
-        token: import.meta.env.NEXT_PUBLIC_WEB3_STORAGE as string,
+        token: import.meta.env.VITE_WEB3_STORAGE as string,
       });
       const imageCid = await client.put([selectedFile]);
       const jsonFileName = "file.json";

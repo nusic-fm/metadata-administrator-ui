@@ -418,7 +418,7 @@ const WaveSurferPlayer = ({
               sx={{
                 bgcolor: "#292929",
                 border: "1px solid #626262",
-                width: "280px",
+                width: "240px",
                 flexShrink: 0,
                 mb: 2,
               }}

@@ -115,7 +115,7 @@ function Metadata() {
 
   // const [userAddress, setUserAddress] = useState<string>();
   // const navigate = useNavigate();
-  const [selectedTabIndex, setSelectedTabIndex] = useState<number>(1);
+  const [selectedTabIndex, setSelectedTabIndex] = useState<number>(3);
   const [draftAvailable, setDraftAvailable] = useState(false);
   // const [artistMetadataAddress, setArtistMetadataAddress] = useState<string>();
   const [deployingContract, setDeployingContract] = useState(false);

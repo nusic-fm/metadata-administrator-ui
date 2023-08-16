@@ -45,6 +45,7 @@ const ProofOfCreationTab = ({
     bpm,
     timeSignature,
     noOfBars,
+    fileUrl,
   } = proofOfCreationMetadataObj;
 
   const onPropertyChange = (key: string, value: any) => {
@@ -55,18 +56,20 @@ const ProofOfCreationTab = ({
   };
   return (
     <Grid container mt={4} spacing={2}>
-      {/* <Grid item xs={10} md={4}>
-        <Typography>Audio</Typography>
-        <MusicUploader
-          fullTrackFile={fullTrackFile}
-          onMultiplePropsChange={(obj: any) =>
-            setProofOfCreationMetadataObj({
-              ...proofOfCreationMetadataObj,
-              ...obj,
-            })
-          }
-        />
-      </Grid> */}
+      {!fileUrl && (
+        <Grid item xs={10} md={4}>
+          <Typography>Audio</Typography>
+          <MusicUploader
+            fullTrackFile={fullTrackFile}
+            onMultiplePropsChange={(obj: any) =>
+              setProofOfCreationMetadataObj({
+                ...proofOfCreationMetadataObj,
+                ...obj,
+              })
+            }
+          />
+        </Grid>
+      )}
       {/* <Grid item md={1} /> */}
       <Grid container item spacing={2}>
         <Grid item xs={10} md={4}>
