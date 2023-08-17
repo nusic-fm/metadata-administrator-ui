@@ -389,14 +389,16 @@ function Metadata() {
         ArtistMetadataAbi.abi,
         library.getSigner()
       );
-      const tx = await metadataContract.publishMetadata(
-        ipfsCid,
-        "0x91cb12fb7a1678b6cdc1b18ef8d5ec0d7697c4a0",
-        "1"
-      );
-      await tx.wait(tx.confirmations);
-      setActiveTxStep(3);
-      alert("successful");
+      try {
+        const tx = await metadataContract.publishMetadata(
+          ipfsCid,
+          "0x91cb12fb7a1678b6cdc1b18ef8d5ec0d7697c4a0",
+          "1"
+        );
+        await tx.wait(tx.confirmations);
+        setActiveTxStep(3);
+        alert("successful");
+      } catch (e) {}
     }
     download(
       JSON.stringify({
@@ -406,9 +408,10 @@ function Metadata() {
         ipfsCid,
         // fullTrackId: parentFullTrackId,
       }),
-      `NUSIC-${titleWithoutSpace}-metadata.json`,
+      `NUSIC_${titleWithoutSpace}_metadata.json`,
       "text/plain"
     );
+    setIsTxDialogOpen(false);
   };
 
   const onTxClick = async () => {
