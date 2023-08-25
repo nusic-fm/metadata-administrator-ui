@@ -40,12 +40,20 @@ import { getSpecificNftsByWallet } from "./utils/moralis";
 
 type Props = {};
 
+type OtherNftsGroup = {
+  [address: string]: {
+    name?: string | null;
+    collectionAddress: string;
+    tokens: IZoraData[];
+  };
+};
 const AlivePass = (props: Props) => {
   const { account, activate, library } = useWeb3React();
   //   const [tokens, setTokens] = useState<MoralisNftData[]>([]);
 
   const [musicNfts, setMusicNfts] = useState<IZoraData[]>([]);
   const [nfts, setNfts] = useState<IZoraData[]>([]);
+  const [groupedNftObj, setGroupedNftObj] = useState<OtherNftsGroup>({});
   const { playing, togglePlayPause, isReady } = useGlobalAudioPlayer();
   const [playIndex, setPlayIndex] = useState<number>(-1);
   const [userDoc, setUserDoc] = useState<IAliveUserDoc>();
@@ -163,6 +171,25 @@ const AlivePass = (props: Props) => {
     });
     setMusicNfts(_musicNfts);
     setNfts(_nfts);
+    const groupObj: {
+      [address: string]: {
+        name?: string | null;
+        collectionAddress: string;
+        tokens: IZoraData[];
+      };
+    } = {};
+    _nfts.map((n) => {
+      if (groupObj[n.collectionAddress]) {
+        groupObj[n.collectionAddress].tokens.push(n);
+      } else {
+        groupObj[n.collectionAddress] = {
+          name: n.collectionName,
+          collectionAddress: n.collectionAddress,
+          tokens: [n],
+        };
+      }
+    });
+    setGroupedNftObj(groupObj);
     // const alivePassIndex = _token.findIndex(
     //   (v) => v.collectionAddress === import.meta.env.NEXT_PUBLIC_ETH_ALIVE_ADDRESS
     // );
@@ -454,7 +481,7 @@ const AlivePass = (props: Props) => {
           <Box
             display={"flex"}
             gap={2}
-            sx={{ overflowX: "auto" }}
+            sx={{ overflowX: "auto", mb: 3 }}
             width={"100%"}
           >
             {musicNfts.length === 0 && (
@@ -485,52 +512,102 @@ const AlivePass = (props: Props) => {
             gap={2}
             sx={{ overflowX: "auto" }}
           >
-            {nfts.length === 0 && (
+            {Object.keys(groupedNftObj).length === 0 && (
               <Typography align="center" px={2} mb={2} color="gray">
                 No NFTs found
               </Typography>
             )}
-            {nfts.map((nft, i) => (
-              <Box
-                key={i}
-                width={180}
-                sx={{
-                  background: `url(${createUrlFromCid(nft.image?.url)})`,
-                  backgroundSize: "cover",
-                }}
-                borderRadius="15px"
-              >
-                <Stack
+            {Object.keys(groupedNftObj).map((address) => (
+              <Stack key={address} justifyContent="space-between" gap={1}>
+                <Box
                   width={180}
-                  height={180}
+                  display="flex"
+                  flexWrap={"wrap"}
+                  gap={2}
+                  justifyContent="center"
+                  alignItems={"center"}
+                >
+                  {groupedNftObj[address].tokens.slice(0, 4).map((nft, i) => (
+                    <Box
+                      key={i}
+                      width={80}
+                      height={80}
+                      sx={{
+                        background: `url(${createUrlFromCid(nft.image?.url)})`,
+                        backgroundSize: "cover",
+                        // border: "0.1px solid #A3A3A3",
+                      }}
+                      borderRadius="15px"
+                    >
+                      {/* <Stack
+                      width={80}
+                      height={80}
+                      justifyContent="end"
+                      alignItems={"center"}
+                      position="relative"
+                    >
+                      <Box
+                        display={"flex"}
+                        mb={0.5}
+                        p={0.2}
+                        px={1}
+                        sx={{
+                          background: "rgba(0,0,0,0.8)",
+                          borderRadius: "6px",
+                        }}
+                        alignItems="center"
+                        justifyContent={"space-between"}
+                        gap={2}
+                        maxWidth="90%"
+                      >
+                        <Tooltip title={nft.collectionName}>
+                          <Typography
+                            variant="caption"
+                            noWrap
+                            fontWeight={900}
+                            fontSize={"10px"}
+                          >
+                            {nft.collectionName}
+                          </Typography>
+                        </Tooltip>
+                      </Box>
+                    </Stack> */}
+                    </Box>
+                  ))}
+                </Box>
+                <Stack
                   justifyContent="end"
                   alignItems={"center"}
                   position="relative"
+                  width={180}
                 >
                   <Box
                     display={"flex"}
                     mb={0.5}
                     p={0.2}
                     px={1}
-                    sx={{ background: "rgba(0,0,0,0.8)", borderRadius: "6px" }}
+                    sx={{
+                      background: "rgba(0,0,0,0.8)",
+                      borderRadius: "6px",
+                    }}
                     alignItems="center"
                     justifyContent={"space-between"}
                     gap={2}
                     maxWidth="90%"
                   >
-                    <Tooltip title={nft.collectionName}>
+                    <Tooltip title={groupedNftObj[address].name}>
                       <Typography
                         variant="caption"
                         noWrap
                         fontWeight={900}
                         fontSize={"10px"}
                       >
-                        {nft.collectionName}
+                        {groupedNftObj[address].name}
                       </Typography>
                     </Tooltip>
                   </Box>
                 </Stack>
-              </Box>
+              </Stack>
             ))}
           </Box>
         </Grid>

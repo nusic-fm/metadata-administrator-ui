@@ -161,11 +161,11 @@ const NftsByWallet = ({ onConnect, onClose, tokenId }: Props) => {
           <Stack
             key={i}
             width={180}
-            p={2}
-            gap={1}
+            p={1}
+            gap={0.5}
             // borderTop="1px solid #474747"
           >
-            <Box>
+            {/* <Box>
               <Tooltip title={nft.name} placement="bottom-start">
                 <Typography
                   fontWeight={900}
@@ -176,54 +176,74 @@ const NftsByWallet = ({ onConnect, onClose, tokenId }: Props) => {
                   {nft.collectionName}
                 </Typography>
               </Tooltip>
-              {/* <Tooltip
-                    title={`Token ID: ${nft.tokenId}`}
-                    placement="bottom-start"
-                  >
-                    <Typography variant="body1" noWrap>
-                      #{nft.tokenId}
-                    </Typography>
-                  </Tooltip> */}
-            </Box>
+            </Box> */}
             <Box
               display={"flex"}
-              alignItems="center"
+              alignItems="end"
               justifyContent={"center"}
-              width="100%"
-              height={"100%"}
+              width="150px"
+              height={"150px"}
+              sx={{
+                backgroundImage: `url(${createUrlFromCid(nft.image?.url)})`,
+                backgroundSize: "cover",
+              }}
+              borderRadius={"4px"}
             >
-              <img
+              {/* <img
                 src={createUrlFromCid(nft.image?.url)}
                 alt=""
                 width={150}
                 height={150}
                 style={{ borderRadius: "10px", objectFit: "cover" }}
-              ></img>
-            </Box>
-            <Box
-              id="isnft"
-              width={"100%"}
-              display="flex"
-              justifyContent={"center"}
-              alignItems="center"
-              gap={4}
-              // mt={4}
-            >
-              {/* <Typography>is it a Music NFT?</Typography> */}
-              <Button
-                disabled={isPreviewLoading}
-                variant="outlined"
-                color="info"
-                size="small"
-                onClick={() => {
-                  if (nft.image?.url) {
-                    onInsert(createUrlFromCid(nft.image?.url));
-                  }
-                }}
+              ></img> */}
+              <Stack
+                width={80}
+                height={80}
+                justifyContent="end"
+                alignItems={"center"}
+                position="relative"
               >
-                Insert
-              </Button>
+                <Box
+                  display={"flex"}
+                  mb={0.5}
+                  p={0.2}
+                  px={1}
+                  sx={{
+                    background: "rgba(0,0,0,0.8)",
+                    borderRadius: "6px",
+                    border: "0.5px solid gray",
+                  }}
+                  alignItems="center"
+                  justifyContent={"space-between"}
+                  gap={2}
+                  maxWidth="90%"
+                >
+                  <Tooltip title={nft.collectionName}>
+                    <Typography
+                      variant="caption"
+                      noWrap
+                      fontWeight={900}
+                      fontSize={"10px"}
+                    >
+                      {nft.collectionName}
+                    </Typography>
+                  </Tooltip>
+                </Box>
+              </Stack>
             </Box>
+            <Button
+              disabled={isPreviewLoading}
+              variant="outlined"
+              color="info"
+              size="small"
+              onClick={() => {
+                if (nft.image?.url) {
+                  onInsert(createUrlFromCid(nft.image?.url));
+                }
+              }}
+            >
+              Insert
+            </Button>
           </Stack>
         ))}
       </Box>

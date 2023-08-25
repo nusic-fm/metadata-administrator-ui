@@ -1,8 +1,10 @@
 import {
-  Button,
   CircularProgress,
+  Divider,
   Fab,
+  Grid,
   IconButton,
+  Popover,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -11,6 +13,8 @@ import { IZoraData } from "../../models/IZora";
 import PauseIcon from "@mui/icons-material/Pause";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { createUrlFromCid } from "../../utils/helper";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
+import { useRef, useState } from "react";
 
 type Props = {
   i: number;
@@ -31,22 +35,88 @@ const NftCard = ({
   playIndex,
   playing,
 }: Props) => {
+  const [showPopover, setShowPopover] = useState(false);
+
+  const popoverAnchorEl = useRef(null);
+
   return (
     <Box
-      width={180}
+      // width={180}
       sx={{
         background: `url(${createUrlFromCid(nft.image?.url)})`,
         backgroundSize: "cover",
       }}
       borderRadius="15px"
+      mb={1}
     >
       <Stack
-        width={180}
-        height={180}
+        width={240}
+        height={240}
         justifyContent="end"
         alignItems={"center"}
         position="relative"
+        ref={popoverAnchorEl}
       >
+        <Box position={"absolute"} top={0} right={0}>
+          <IconButton size="small" onClick={() => setShowPopover(!showPopover)}>
+            <InfoOutlinedIcon fontSize="small" />
+          </IconButton>
+        </Box>
+        {showPopover && (
+          <Box
+            position={"absolute"}
+            top={0}
+            borderRadius="6px"
+            sx={{
+              background:
+                "linear-gradient(180deg, rgba(74, 74, 74, 0.85) 0%, rgba(39, 39, 39, 0.00) 100%)",
+              backdropFilter: "blur(5.5px)",
+            }}
+            mx={2}
+            mt={4}
+            p={2}
+          >
+            <Grid container>
+              <Grid item xs={12}>
+                <Typography>Details</Typography>
+              </Grid>
+              <Grid item xs={12} my={0.5}>
+                <Divider />
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="caption">Address</Typography>
+              </Grid>
+              <Grid
+                item
+                xs={6}
+                component={"a"}
+                href={`https://etherscan.io/address/${nft.collectionAddress}`}
+                target="_blank"
+              >
+                <Typography variant="caption">
+                  {nft.collectionAddress.slice(0, 6)}...
+                  {nft.collectionAddress.slice(
+                    nft.collectionAddress.length - 4
+                  )}
+                </Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="caption">Token</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="caption">{nft.tokenId}</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="caption">Format</Typography>
+              </Grid>
+              <Grid item xs={6}>
+                <Typography variant="caption">
+                  {nft.content?.mimeType}
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+        )}
         <Box
           display={"flex"}
           mb={0.5}
