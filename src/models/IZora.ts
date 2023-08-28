@@ -79,5 +79,15 @@ export type IZoraNftMetadata = {
     size: string;
   };
   tokenUrl: string;
-  metadata?: any;
+  metadata?: {
+    animation_url: string;
+    artist?: string;
+    artistName?: string;
+    artist_name?: string;
+    description?: string;
+    bpm?: string;
+    key?: string;
+    genre?: string;
+    title?: string;
+  };
 };

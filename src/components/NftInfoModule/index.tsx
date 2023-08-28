@@ -1,6 +1,11 @@
 import {
   Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  Divider,
   FormControl,
+  IconButton,
   InputLabel,
   LinearProgress,
   MenuItem,
@@ -24,6 +29,7 @@ import { useState } from "react";
 import { useRef } from "react";
 import { updateUserDoc } from "../../services/db/user.service";
 import { ArtistReleases, ReleaseSoundXyz } from "../../models/IUser";
+import CloseIcon from "@mui/icons-material/Close";
 
 type Props = {
   addressProps: [string, (str: string) => void];
@@ -281,8 +287,56 @@ const NftInfoModule = ({
                 >
                   View Metadata
                 </Button>
-                <Popover
-                  id="mouse-over-popover"
+                <Dialog open={open} fullWidth onClose={handlePopoverClose}>
+                  <DialogTitle>
+                    <Typography>Existing Metadata Details</Typography>
+                    <IconButton
+                      onClick={handlePopoverClose}
+                      sx={{
+                        position: "absolute",
+                        right: 8,
+                        top: 8,
+                        color: (theme) => theme.palette.grey[500],
+                      }}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </DialogTitle>
+                  <Divider />
+                  <DialogContent>
+                    <Stack spacing={1}>
+                      {Object.keys(nftMetadata.metadata || {})
+                        .filter((k) =>
+                          [
+                            "animation_url",
+                            "artist",
+                            "artist_name",
+                            "bpm",
+                            "key",
+                            "genre",
+                            "description",
+                            "license",
+                            "name",
+                            "image",
+                            "title",
+                          ].includes(k)
+                        )
+                        .sort()
+                        .map((key: string, i: number) => (
+                          <Box key={i}>
+                            <Typography textTransform={"capitalize"}>
+                              {key.split("_").join(" ")}
+                            </Typography>
+                            <Typography color={"#C2C2C2"} variant="caption">
+                              {(nftMetadata.metadata as any)[key]?.toString() ||
+                                "---"}
+                            </Typography>
+                          </Box>
+                        ))}
+                    </Stack>
+                  </DialogContent>
+                </Dialog>
+                {/* <Popover
                   // sx={{
                   //   pointerEvents: "none",
                   // }}
@@ -305,11 +359,14 @@ const NftInfoModule = ({
                     m={2}
                     p={2}
                   >
+                    <Grid container>
+                      <Grid item></Grid>
+                    </Grid>
                     <Typography component={"pre"} variant="caption">
                       {JSON.stringify(nftMetadata.metadata, undefined, 2)}
                     </Typography>
                   </Box>
-                </Popover>
+                </Popover> */}
               </Box>
             </Stack>
           </Stack>
