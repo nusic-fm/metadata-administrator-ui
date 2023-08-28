@@ -5,15 +5,19 @@ import {
   TextField,
   Skeleton,
   OutlinedInput,
-  InputAdornment,
-  IconButton,
+  // InputAdornment,
+  // IconButton,
   Tooltip,
   // Select,
   // MenuItem,
   // Autocomplete,
 } from "@mui/material";
 import MusicUploader from "../MusicUploader";
-import CachedIcon from "@mui/icons-material/Cached";
+// import CachedIcon from "@mui/icons-material/Cached";
+// import { useEffect } from "react";
+// import axios from "axios";
+// import { createUploadDoc } from "../../services/db/user.service";
+// import { useWeb3React } from "@web3-react/core";
 
 export type ProofOfCreationMetadataObj = {
   fullTrackFile?: File;
@@ -47,6 +51,7 @@ const ProofOfCreationTab = ({
     noOfBars,
     fileUrl,
   } = proofOfCreationMetadataObj;
+  // const { account } = useWeb3React();
 
   const onPropertyChange = (key: string, value: any) => {
     setProofOfCreationMetadataObj({
@@ -54,6 +59,30 @@ const ProofOfCreationTab = ({
       [key]: value,
     });
   };
+  // TODO:
+  // const getAnalysis = async () => {
+  //   if (fileUrl && account) {
+  //     const response = await fetch(fileUrl);
+  //     const audioBlob = await response.blob();
+  //     const formData = new FormData();
+  //     formData.append("audio", audioBlob);
+
+  //     const res = await axios.post("http://localhost:8000/upload", formData, {
+  //       headers: {
+  //         "Content-Type": "multipart/form-data",
+  //       },
+  //     });
+  //     const id = res.data?.id;
+  //     if (id) {
+  //       await createUploadDoc(account, id);
+  //     }
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   getAnalysis();
+  // }, [fileUrl]);
+
   return (
     <Grid container mt={4} spacing={2}>
       {!fileUrl && (

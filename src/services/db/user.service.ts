@@ -36,7 +36,13 @@ const updateUserDoc = async (
   await updateDoc(d, userDoc);
 };
 
-// const SUB_DB_NAME = "releases";
+const SUB_UPLOADS_NAME = "uploads";
+
+const createUploadDoc = async (walletAddress: string, id: string) => {
+  const d = doc(db, DB_NAME, walletAddress, SUB_UPLOADS_NAME, id);
+  await setDoc(d, { uploadId: id });
+};
+
 // const getArtistReleases = async (
 //   walletAddress: string
 // ): Promise<null | ArtistReleases> => {
@@ -71,6 +77,7 @@ export {
   getOrCreateUserDoc,
   getUserDoc,
   updateUserDoc,
+  createUploadDoc,
   // getArtistReleases,
   // updateArtistReleases,
 };
