@@ -66,16 +66,32 @@ const ProofOfCreationTab = ({
   //     const audioBlob = await response.blob();
   //     const formData = new FormData();
   //     formData.append("audio", audioBlob);
-
-  //     const res = await axios.post("http://localhost:8000/upload", formData, {
-  //       headers: {
-  //         "Content-Type": "multipart/form-data",
-  //       },
-  //     });
-  //     const id = res.data?.id;
-  //     if (id) {
-  //       await createUploadDoc(account, id);
-  //     }
+  //     try {
+  //       const res = await axios.post(
+  //         `${import.meta.env.VITE_MUSIC_INFO_RETRIEVER}/sections`,
+  //         formData,
+  //         {
+  //           headers: {
+  //             "Content-Type": "multipart/form-data",
+  //           },
+  //         }
+  //       );
+  //       const data = res.data;
+  //       if (data) {
+  //         const sections = data.sections;
+  //         const bpm = data.bpm;
+  //         const timeSignature = "4/4";
+  //         setProofOfCreationMetadataObj({
+  //           ...proofOfCreationMetadataObj,
+  //           bpm,
+  //           timeSignature,
+  //         });
+  //       }
+  //     } catch (e) {}
+  //     // const id = res.data?.id;
+  //     // if (id) {
+  //     //   // await createUploadDoc(account, id);
+  //     // }
   //   }
   // };
 

@@ -29,6 +29,8 @@ import { WaveSurferOptions } from "wavesurfer.js";
 import { convertSecondsToHHMMSS } from "../../utils/helper";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import "./styles.css";
+// import Splitter from "./Splitter";
 
 const SectionNames = [
   "Intro",
@@ -48,6 +50,8 @@ type Props = {
   setSectionsObj: React.Dispatch<React.SetStateAction<SectionsObj>>;
   onDurationUpdate: (duration: number) => void;
 };
+
+const defaultZoomValue = 50;
 
 const WaveSurferPlayer = ({
   proofOfCreationMetadataObj,
@@ -83,13 +87,14 @@ const WaveSurferPlayer = ({
     plugins: [timelineWs.current, regionsWs.current],
     url: fileUrl,
     container: "", // Will be overrided
-    minPxPerSec: 50,
+    minPxPerSec: defaultZoomValue,
   });
   const wavesurfer = useWavesurfer(containerRef, options.current);
   const [isWaveformReady, setIsWaveformReady] = useState(true);
   const [isMetronomePlaying, setIsMetronomePlaying] = useState(false);
   const intervalRef = useRef<NodeJS.Timer | null>(null);
   const sectionsScrollRef = useRef<HTMLElement | null>(null);
+  const [regionsOrder, setRegionsOrder] = useState([]);
 
   const playTickSound = () => {
     const audio = new Audio("beep.wav");
@@ -118,12 +123,14 @@ const WaveSurferPlayer = ({
         content.style.color = "rgba(255,255,255,0.4)";
         content.style.paddingLeft = "4px";
         regionsWs.current.addRegion({
+          id: `marker_${no}`,
           start,
           color: "rgba(255,255,255,0.2)",
           content: content,
           drag: false,
           resize: false,
         });
+
         newBars[no] = { start, end };
         start = end;
       }
@@ -153,6 +160,13 @@ const WaveSurferPlayer = ({
         const newEnd = differenceToClosestBarEnd[0].end;
         newSectionsObj[id].end = newEnd;
         (region as any).setOptions({ end: newEnd });
+        // const nextRegion = regionsWs.current
+        //   .getRegions()
+        //   .filter((r) => r.id === (Number(id) + 1).toString())[0];
+        // if (nextRegion && newEnd > nextRegion.start) {
+        //   nextRegion.setOptions({ start: newEnd });
+        //   console.log("running");
+        // }
         // region.end = newEnd;
         // .onResize(newEnd - regionEnd);
       } else {
@@ -204,19 +218,19 @@ const WaveSurferPlayer = ({
         totalBars: newSectionsObj[id - 1].totalBars + 1,
       };
     }
-    var o = Math.round,
-      r = Math.random,
-      s = 255;
-    const color =
-      "rgba(" +
-      o(r() * s) +
-      "," +
-      o(r() * s) +
-      "," +
-      o(r() * s) +
-      "," +
-      0.4 +
-      ")";
+    // var o = Math.round,
+    //   r = Math.random,
+    //   s = 255;
+    // const color =
+    //   "rgba(" +
+    //   o(r() * s) +
+    //   "," +
+    //   o(r() * s) +
+    //   "," +
+    //   o(r() * s) +
+    //   "," +
+    //   0.4 +
+    //   ")";
     const start = newSectionsObj[id].start;
     const end = newSectionsObj[id].end;
 
@@ -224,10 +238,33 @@ const WaveSurferPlayer = ({
       id: id.toString(),
       start,
       end,
-      color,
+      color: "rgba(0, 0, 0, 0.5)",
       drag: false,
       resize: true,
+      content: newSectionsObj[id].name,
     });
+    // const reg = regionsWs.current
+    //   .getRegions()
+    //   .filter((r) => r.id === id.toString())[0];
+    // reg.on("update", () => {
+    //   const nextRegion = regionsWs.current
+    //     .getRegions()
+    //     .filter((r) => r.id === (id + 1).toString())[0];
+    //   if (nextRegion && reg.end > nextRegion.start) {
+    //     nextRegion.start = reg.end;
+    //     nextRegion.setOptions({ start: reg.end });
+    //     // (nextRegion as any).setOptions({ end: newEnd });
+    //     // callback(nextRegion);
+    //   }
+    // });
+    // reg.on("update-end", () => {
+    //   const nextRegion = regionsWs.current
+    //     .getRegions()
+    //     .filter((r) => r.id === (id + 1).toString())[0];
+    //   if (nextRegion && reg.end > nextRegion.start) {
+
+    //   }
+    // });
     setSectionsObj(newSectionsObj);
     setTimeout(() => {
       if (sectionsScrollRef.current) {
@@ -265,7 +302,9 @@ const WaveSurferPlayer = ({
   // or any of the props change
   useEffect(() => {
     if (!wavesurfer) return;
-    console.log("1");
+    // regionsWs.current.enableDragSelection({
+    //   color: "rgba(255, 0, 0, 0.1)",
+    // });
 
     setCurrentTime(0);
     setIsPlaying(false);
@@ -345,7 +384,7 @@ const WaveSurferPlayer = ({
               min={10}
               max={100}
               // value={100}
-              defaultValue={50}
+              defaultValue={defaultZoomValue}
               onChange={(e, val) => {
                 wavesurfer?.zoom(val as number);
               }}
@@ -355,6 +394,9 @@ const WaveSurferPlayer = ({
         </Box>
       </Box>
       <Box mt={4}>
+        {/* <Box mb={1}>
+          <Splitter />
+        </Box> */}
         {isWaveformReady && (
           <Skeleton
             variant="rounded"
@@ -366,7 +408,8 @@ const WaveSurferPlayer = ({
         )}
         <div
           ref={containerRef}
-          style={{ width: "100%" }}
+          className="waveform-cont"
+          style={{ width: "100%", color: "white" }}
           //   tabIndex="0"
           //   sx={{ ":focus": { outline: "none" } }}
           onKeyDown={(e: any) => {
