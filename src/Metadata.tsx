@@ -39,6 +39,8 @@ import { createUrlFromCid, fetchAndConvertToBlob } from "./utils/helper";
 import { getOrCreateUserDoc, updateUserDoc } from "./services/db/user.service";
 import { IAliveUserDoc } from "./models/IUser";
 import { CreditsRow } from "./components/CreditsRows";
+// import Splitter from "./components/WaveForm/Splitter";
+// import MultiWaveform from "./components/WaveForm/MultiWaveform";
 
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
 
@@ -509,7 +511,7 @@ function Metadata() {
               // align="left"
               fontFamily={"Roboto"}
             >
-              Music Metadata Administration
+              Sync Ledger
             </Typography>
             {userDoc?.artistContract ? (
               <Chip label={userDoc?.artistContract} variant="outlined" />
