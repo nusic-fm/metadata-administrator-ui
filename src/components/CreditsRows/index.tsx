@@ -16,10 +16,10 @@ import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 export type CreditsRow = {
-  name?: string | undefined;
+  name?: string;
   role?: string[];
-  percentAllocation?: number | undefined;
-  walletAddress?: string | undefined;
+  percentAllocation?: number;
+  walletAddress?: string;
 };
 
 type Props = {

@@ -8,16 +8,16 @@ import {
   createRoutesFromElements,
   Route,
 } from "react-router-dom";
-import WithTokenGate from "./components/WithTokenGate";
+// import WithTokenGate from "./components/WithTokenGate";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route
       path="/"
       element={
-        <WithTokenGate>
-          <Header />
-        </WithTokenGate>
+        // <WithTokenGate>
+        <Header />
+        // </WithTokenGate>
       }
     >
       <Route index element={<Metadata />} />

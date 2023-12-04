@@ -32,7 +32,7 @@ export type CompositionOwnershipObj = {
 
 export type ArtistMetadataObj = {
   artist: string;
-  featuredArtists: never[];
+  featuredArtists: string[];
   credits: {
     [key: number]: CreditsRow;
   };
