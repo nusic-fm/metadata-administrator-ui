@@ -8,6 +8,7 @@ import {
   createRoutesFromElements,
   Route,
 } from "react-router-dom";
+import Numix from "./Numix";
 // import WithTokenGate from "./components/WithTokenGate";
 
 const router = createBrowserRouter(
@@ -21,6 +22,7 @@ const router = createBrowserRouter(
       }
     >
       <Route index element={<Metadata />} />
+      <Route path="numix" element={<Numix />} />
       <Route path="alive-pass" element={<AlivePass />} />
     </Route>
   )
