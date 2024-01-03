@@ -114,10 +114,13 @@ const NavBar = (props: Props) => {
         <ListItemButton sx={{ mb: 2 }} disabled>
           <SpatialAudioOffIcon color="secondary" />
         </ListItemButton>
-        <ListItemButton sx={{ mb: 2 }} onClick={() => navigate("/numix")}>
+        <ListItemButton sx={{ mb: 2 }} onClick={() => navigate("/projects")}>
           <LibraryMusicIcon color="secondary" />
         </ListItemButton>
-        <ListItemButton sx={{ mb: 2 }} disabled>
+        <ListItemButton
+          sx={{ mb: 2 }}
+          onClick={() => navigate("/stem-separation")}
+        >
           <StorefrontIcon color="secondary" />
         </ListItemButton>
         <Divider sx={{ my: 10 }} />

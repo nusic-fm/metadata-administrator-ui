@@ -30,6 +30,7 @@ export type ProofOfCreationMetadataObj = {
   noOfBeatsPerBar: number;
   noOfBars?: number;
   noOfBeats?: number;
+  segments?: { start: number; end: number; label: string }[];
 };
 type Props = {
   proofOfCreationMetadataObj: ProofOfCreationMetadataObj;

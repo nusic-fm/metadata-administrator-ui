@@ -9,9 +9,16 @@ import {
   MenuItem,
   Tabs,
   Tab,
-  Chip,
+  // Chip,
+  LinearProgress,
+  // Dialog,
+  // DialogTitle,
+  // DialogContent,
+  // Backdrop,
+  // CircularProgress,
+  Stack,
 } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 // import WaveForm from "./components/WaveForm/old";
 import AcceptStems from "./components/Dropzone";
 import { useDropzone } from "react-dropzone";
@@ -41,7 +48,8 @@ import { IAliveUserDoc } from "./models/IUser";
 import { CreditsRow } from "./components/CreditsRows";
 // import Splitter from "./components/WaveForm/Splitter";
 // import MultiWaveform from "./components/WaveForm/MultiWaveform";
-
+// import axios from "axios";
+import MusicUploader from "./components/MusicUploader";
 const StemTypes = ["Vocal", "Instrumental", "Bass", "Drums"];
 
 type Stem = { file: File; name: string; type: string };
@@ -106,6 +114,7 @@ function Metadata() {
   const [stemsObj, setStemsObj] = useState<StemsObj>({});
 
   // const getSelectedBeatOffet = useRef(null);
+  const uplaodContainerRef = useRef(null);
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone();
   const [activeTxStep, setActiveTxStep] = useState<number>(0);
   const [isTxDialogOpen, setIsTxDialogOpen] = useState<boolean>(false);
@@ -117,7 +126,7 @@ function Metadata() {
 
   // const [userAddress, setUserAddress] = useState<string>();
   // const navigate = useNavigate();
-  const [selectedTabIndex, setSelectedTabIndex] = useState<number>(3);
+  const [selectedTabIndex, setSelectedTabIndex] = useState<number>(1);
   const [draftAvailable, setDraftAvailable] = useState(false);
   // const [artistMetadataAddress, setArtistMetadataAddress] = useState<string>();
   const [deployingContract, setDeployingContract] = useState(false);
@@ -125,6 +134,8 @@ function Metadata() {
   const [tokenId, setTokenId] = useState<string>("");
   const [nftMetadata, setNftMetadata] = useState<IZoraNftMetadata>();
   const [userDoc, setUserDoc] = useState<IAliveUserDoc>();
+
+  const [segmentsLoading, setSegmentsLoading] = useState(false);
 
   const { account, library } = useWeb3React();
 
@@ -495,9 +506,77 @@ function Metadata() {
       setArtistMetadataObj({ ...artistMetadataObj, credits: _credits });
     }
   };
+
+  // TODO: For Allin1
+  // const fetchAllin1 = async () => {
+  //   if (
+  //     proofOfCreationMetadataObj.fullTrackFile &&
+  //     !proofOfCreationMetadataObj.segments?.length
+  //   ) {
+  //     var formData = new FormData();
+  //     formData.append("file", proofOfCreationMetadataObj.fullTrackFile);
+  //     formData.append("project_id", "new");
+  //     setSegmentsLoading(true);
+  //     const respose = await axios.post(
+  //       "http://127.0.0.1:8081/all-in-one",
+  //       formData,
+  //       {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //         },
+  //       }
+  //     );
+  //     setSegmentsLoading(false);
+  //     // const segments = respose.segments;
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   // fetchAllin1();
+  // }, [proofOfCreationMetadataObj]);
+
   return (
     <Box>
-      <Box p={{ xs: 4 }}>
+      <Box p={{ xs: 4 }} ref={uplaodContainerRef} position="relative">
+        {!proofOfCreationMetadataObj.fullTrackFile && (
+          <Box
+            position={"absolute"}
+            top={0}
+            left={0}
+            width={"100%"}
+            zIndex={999}
+            height={"100%"}
+            sx={{ background: "rgba(0, 0, 0, 0.8)" }}
+            display="flex"
+            justifyContent={"center"}
+            alignItems="center"
+          >
+            <Stack gap={4}>
+              <Typography variant="h4">NEXT GEN MUSIC METADATA</Typography>
+              <Typography align="center">Get Started</Typography>
+              <Box display={"flex"} gap={10} justifyContent="center">
+                <Stack gap={2}>
+                  <Typography>Music NFTs</Typography>
+                  <Button variant="contained" size="small" sx={{ mt: 1 }}>
+                    Choose
+                  </Button>
+                </Stack>
+                <Stack gap={2}>
+                  <Typography>Your Track</Typography>
+                  <MusicUploader
+                    fullTrackFile={proofOfCreationMetadataObj.fullTrackFile}
+                    onMultiplePropsChange={(obj: any) =>
+                      setProofOfCreationMetadataObj({
+                        ...proofOfCreationMetadataObj,
+                        ...obj,
+                      })
+                    }
+                  />
+                </Stack>
+              </Box>
+            </Stack>
+          </Box>
+        )}
         <Box
           display={"flex"}
           alignItems="center"
@@ -505,6 +584,23 @@ function Metadata() {
           justifyContent="space-between"
           flexWrap={"wrap"}
         >
+          {/* <Dialog
+            open={!proofOfCreationMetadataObj.fullTrackFile}
+            slots={{ backdrop: uplaodContainerRef.current as any }}
+          >
+            <DialogTitle></DialogTitle>
+            <DialogContent>
+              <MusicUploader
+                fullTrackFile={proofOfCreationMetadataObj.fullTrackFile}
+                onMultiplePropsChange={(obj: any) =>
+                  setProofOfCreationMetadataObj({
+                    ...proofOfCreationMetadataObj,
+                    ...obj,
+                  })
+                }
+              />
+            </DialogContent>
+          </Dialog> */}
           <Box display={"flex"} alignItems="center" gap={1}>
             <Typography
               variant="h5"
@@ -513,7 +609,7 @@ function Metadata() {
             >
               Sync Ledger
             </Typography>
-            {userDoc?.artistContract ? (
+            {/* {userDoc?.artistContract ? (
               <Chip label={userDoc?.artistContract} variant="outlined" />
             ) : (
               <LoadingButton
@@ -526,7 +622,7 @@ function Metadata() {
               >
                 Deploy your Artist Contract
               </LoadingButton>
-            )}
+            )} */}
           </Box>
           {draftAvailable && !isStartListening && (
             <Button
@@ -654,6 +750,7 @@ function Metadata() {
               setSectionsObj={setSectionsObj}
             />
           )}
+          {segmentsLoading && <LinearProgress />}
         </Box>
         {selectedTabIndex === 3 && (
           <Box>

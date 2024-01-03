@@ -1,5 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { ethers } from "ethers";
+// import { ethers } from "ethers";
+import JSZip from "jszip";
 
 export const checkAndSwitchConnection = async () => {
   const provider = new Web3Provider((window as any).ethereum);
@@ -94,4 +95,23 @@ export const getAudioDuration = async (url: string): Promise<number> => {
       reject(0);
     });
   });
+};
+
+export const unzipAndProcess = async (zipData: any) => {
+  const zip = await JSZip.loadAsync(zipData);
+
+  // Extract files
+  const vocals = await zip.file("vocals.wav")?.async("arraybuffer");
+  const instrumental = await zip.file("instrumental.wav")?.async("arraybuffer");
+
+  return [vocals, instrumental];
+};
+export const createFileFromUrl = async (name: string, url: string) => {
+  let response = await fetch(url);
+  let data = await response.blob();
+  let metadata = {
+    type: "image/jpeg",
+  };
+  return new File([data], name, metadata);
+  // ... do something with the file or return it
 };
