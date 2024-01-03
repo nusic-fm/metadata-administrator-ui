@@ -3,7 +3,8 @@ import { Box } from "@mui/material";
 import Header from "./components/Header";
 import Metadata from "./Metadata";
 import {
-  createBrowserRouter,
+  // createBrowserRouter,
+  createHashRouter,
   RouterProvider,
   createRoutesFromElements,
   Route,
@@ -12,7 +13,7 @@ import StemSeperation from "./StemSeperation";
 import Projects from "./Projects";
 // import WithTokenGate from "./components/WithTokenGate";
 
-const router = createBrowserRouter(
+const router = createHashRouter(
   createRoutesFromElements(
     <Route
       path="/"
