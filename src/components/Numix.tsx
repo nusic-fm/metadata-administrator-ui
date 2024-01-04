@@ -150,7 +150,8 @@ const Numix = ({ projectId }: Props) => {
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_GPU_REMIX_SERVER}/remixer`,
-        formData
+        formData,
+        { timeout: 600000 } // 10 Minutes
       );
       if (res.data.error) {
         alert(res.data.error);
