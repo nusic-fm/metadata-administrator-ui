@@ -1,4 +1,19 @@
-
 body {
   margin: 0;
+}
+.myBubbleUI {
+  width: 100%;
+  max-width: 100vw;
+  height: 350px;
+  background-color: transparent;
+}
+
+.childComponent {
+  width: 100%; /* width expands to fit bubble */
+  height: 100%; /* width expands to fit bubble */
+  border-radius: 50%; /* rounded border forms a circle */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

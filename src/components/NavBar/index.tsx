@@ -99,7 +99,7 @@ const NavBar = (props: Props) => {
       ml={4}
       sx={{ bgcolor: "#141414" }}
       width={80}
-      display="flex"
+      display={{ xs: "none", md: "flex" }}
       justifyContent={"center"}
       borderRadius="10px"
       height={"calc(100% - 180px)"}
@@ -124,7 +124,7 @@ const NavBar = (props: Props) => {
           <StorefrontIcon color="secondary" />
         </ListItemButton>
         <Divider sx={{ my: 10 }} />
-        <ListItemButton sx={{ mb: 2 }} href="/metadata" disabled>
+        <ListItemButton sx={{ mb: 2 }} onClick={() => navigate("/snippets")}>
           <DonutSmallOutlinedIcon color="secondary" />
         </ListItemButton>
         <ListItemButton
