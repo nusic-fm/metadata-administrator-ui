@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 import StemSeperation from "./StemSeperation";
 import Projects from "./Projects";
+import Snippets from "./Snippets";
 // import WithTokenGate from "./components/WithTokenGate";
 
 const router = createHashRouter(
@@ -27,6 +28,7 @@ const router = createHashRouter(
       <Route path="projects" element={<Projects />} />
       <Route path="alive-pass" element={<AlivePass />} />
       <Route path="stem-separation" element={<StemSeperation />} />
+      <Route path="snippets" element={<Snippets />} />
     </Route>
   )
 );
