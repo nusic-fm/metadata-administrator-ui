@@ -250,9 +250,9 @@ const Snippets = (props: Props) => {
       <Box mt={4} width="100%" display={"flex"} justifyContent="center">
         <BubbleUI
           options={{
-            size: 160,
+            size: 140,
             minSize: 70,
-            gutter: 10,
+            gutter: 30,
             provideProps: true,
             numCols: 3,
             fringeWidth: 100,
@@ -273,6 +273,20 @@ const Snippets = (props: Props) => {
                 backgroundColor: audioListObj[key].color,
               }}
             >
+              <Box
+                position={"absolute"}
+                height="100%"
+                width={"100%"}
+                borderRadius="50%"
+                sx={{
+                  animation:
+                    playNo === key ? "waves .5s linear infinite" : "unset",
+                  animationDelay: "1s",
+                  background: audioListObj[key].color,
+                  transition: "5s ease",
+                }}
+              ></Box>
+
               {audioListObj[key].url ? (
                 <Button
                   color="secondary"
