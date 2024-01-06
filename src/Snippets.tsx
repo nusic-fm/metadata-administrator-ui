@@ -57,6 +57,7 @@ const Snippets = (props: Props) => {
     6: { url: "", name: "", color: "" },
     7: { url: "", name: "", color: "" },
     8: { url: "", name: "", color: "" },
+    9: { url: "", name: "", color: "" },
   });
   const [newAudio, setNewAudio] = useState<string>();
 
@@ -138,7 +139,7 @@ const Snippets = (props: Props) => {
     setLoadingNo(8);
     // await fetchAudio("Americana", "3");
     await new Promise((res) => setTimeout(res, 4000));
-    setPrevLoadingNo(4);
+    setPrevLoadingNo(8);
     setNewAudio(
       "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.3.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
     );
@@ -156,12 +157,19 @@ const Snippets = (props: Props) => {
     setNewAudio(
       "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
     );
-    setLoadingNo(8);
+    setLoadingNo(6);
     // await fetchAudio("Americana", "3");
     await new Promise((res) => setTimeout(res, 4000));
-    setPrevLoadingNo(8);
+    setPrevLoadingNo(6);
     setNewAudio(
       "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F5.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+    );
+    setLoadingNo(9);
+    // await fetchAudio("Americana", "3");
+    await new Promise((res) => setTimeout(res, 4000));
+    setPrevLoadingNo(9);
+    setNewAudio(
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
     );
     // setLoadingNo(9);
     // // await fetchAudio("Americana", "3");
@@ -175,7 +183,6 @@ const Snippets = (props: Props) => {
     // setNewAudio(
     //   "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.3.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
     // );
-    setPrevLoadingNo(-1);
     setLoadingNo(-1);
   };
 
@@ -260,7 +267,7 @@ const Snippets = (props: Props) => {
                   animation="wave"
                 />
               ) : (
-                <Typography>.</Typography>
+                <Typography>{key}</Typography>
               )}
             </Box>
           ))}
