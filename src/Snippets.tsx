@@ -1,4 +1,11 @@
-import { Button, Fab, Skeleton, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  Skeleton,
+  Typography,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -41,7 +48,15 @@ const genreNames = [
   "The Chase",
 ];
 const Snippets = (props: Props) => {
-  const { initializeTone, playAudio, pausePlayer, isTonePlaying } = useTonejs(
+  const {
+    initializeTone,
+    playAudio,
+    pausePlayer,
+    isTonePlaying,
+    switchLoop,
+    playPlayer,
+    stopPlayer,
+  } = useTonejs(
     () => {},
     () => {}
   );
@@ -77,6 +92,9 @@ const Snippets = (props: Props) => {
           color: getColorsForGroup(name),
         },
       });
+      if (prevLoadingNo === 3) {
+        setPlayNo("3");
+      }
       // setAudioList([...audioList, audio1]);
       // setPlayNo(1);
     }
@@ -190,6 +208,7 @@ const Snippets = (props: Props) => {
     <Box height={"90vh"} width={{ xs: "100vw", md: "unset" }}>
       <Box
         display={"flex"}
+        flexDirection="column"
         justifyContent="center"
         alignItems={"center"}
         gap={2}
@@ -211,6 +230,22 @@ const Snippets = (props: Props) => {
         >
           {showBtn ? "Upload Music" : "weezer_buddy.wav"}
         </Button>
+        {!showBtn && (
+          <Box display={"flex"}>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    onChange={() => {
+                      switchLoop();
+                    }}
+                  />
+                }
+                label="Loop"
+              />
+            </FormGroup>
+          </Box>
+        )}
       </Box>
       <Box mt={4} width="100%" display={"flex"} justifyContent="center">
         <BubbleUI
@@ -243,7 +278,10 @@ const Snippets = (props: Props) => {
                   color="secondary"
                   sx={{ height: "100%", width: "100%", borderRadius: "50%" }}
                   onClick={() => {
-                    setPlayNo(key);
+                    if (playNo === key) {
+                      stopPlayer();
+                      playPlayer();
+                    } else setPlayNo(key);
                   }}
                 >
                   {audioListObj[key].name}
@@ -267,7 +305,7 @@ const Snippets = (props: Props) => {
                   animation="wave"
                 />
               ) : (
-                <Typography>{key}</Typography>
+                <Typography>.</Typography>
               )}
             </Box>
           ))}

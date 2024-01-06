@@ -21,7 +21,7 @@ export const useTonejs = (
     string | null
   >(null);
   const tempLoopVar = useRef(true);
-  const [loop, setLoop] = useState(true);
+  const [loop, setLoop] = useState(false);
   const beatsToReduceForSync = useRef<number>(0);
   const currentTimeRef = useRef<number>(0);
   const onEndedCalledRef = useRef(false);
