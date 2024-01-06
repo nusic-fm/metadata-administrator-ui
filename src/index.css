@@ -4,7 +4,8 @@ body {
 .myBubbleUI {
   width: 100%;
   max-width: 100vw;
-  height: 350px;
+  height: 500px;
+  border-radius: 50px;
   background-color: transparent;
 }
 

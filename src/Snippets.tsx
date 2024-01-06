@@ -16,6 +16,7 @@ import { LoadingButton } from "@mui/lab";
 // import Bubbles from "./Bubbles";
 import BubbleUI from "react-bubble-ui";
 import "react-bubble-ui/dist/index.css";
+import { useDropzone } from "react-dropzone";
 
 type Props = {};
 const getColorsForGroup = (name: string) => {
@@ -28,8 +29,8 @@ const getColorsForGroup = (name: string) => {
     case "Mystical Orient":
     case "The Chase":
       return "rgb(58, 106, 231)";
-    case "Egypt":
-    case "Latin":
+    case "The Rocker":
+    case "Future Bass":
     case "Indian":
     case "African":
       return "rgb(255, 130, 14)";
@@ -46,8 +47,14 @@ const genreNames = [
   "Dubstepper",
   "Ambient",
   "The Chase",
+  "In Da Club",
+  "The Rocker",
 ];
 const Snippets = (props: Props) => {
+  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
+    noClick: true,
+  });
+
   const {
     initializeTone,
     playAudio,
@@ -125,69 +132,69 @@ const Snippets = (props: Props) => {
     await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(3);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F3.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(1);
     // await fetchAudio("Rock", "2");
     await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(1);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F3.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F1.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(0);
     await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(0);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F0.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(2);
     // await fetchAudio("Trance", "2");
     await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(2);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.2.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F2.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(5);
     // await fetchAudio("Indian", "2");
     await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(5);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F5.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F5.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(8);
     // await fetchAudio("Americana", "3");
     await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(8);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.3.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F8.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(4);
     // await fetchAudio("Americana", "3");
     await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(4);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F5.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F4.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(7);
     // await fetchAudio("Americana", "3");
     await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(7);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F7.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(6);
     // await fetchAudio("Americana", "3");
     await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(6);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F5.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F6.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(9);
     // await fetchAudio("Americana", "3");
     await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(9);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
+      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F9.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     // setLoadingNo(9);
     // // await fetchAudio("Americana", "3");
@@ -216,20 +223,42 @@ const Snippets = (props: Props) => {
         height={showBtn ? "100%" : "10%"}
         sx={{ transition: "height 1s" }}
       >
-        {/* <TextField label="Prompt"></TextField> */}
-        <Button
+        <Box
+          border={"1px dashed grey"}
+          p={4}
+          borderRadius="8px"
           onClick={() => {
             setShowBtn(false);
             onFetchAudio();
           }}
-          disabled={!showBtn}
-          color="secondary"
-          size="small"
-          sx={{ width: 300, textTransform: "none" }}
-          variant="contained"
+          display="flex"
+          justifyContent={"center"}
         >
-          {showBtn ? "Upload Music" : "weezer_buddy.wav"}
-        </Button>
+          {showBtn ? (
+            <div {...getRootProps({ className: "dropzone" })}>
+              <input {...getInputProps()} />
+              <Typography>
+                Drop your Favorite Music to start NUMIXing
+              </Typography>
+            </div>
+          ) : (
+            <Button
+              onClick={() => {
+                setShowBtn(false);
+                onFetchAudio();
+              }}
+              disabled={!showBtn}
+              color="secondary"
+              // size="small"
+              sx={{ width: 300, textTransform: "none" }}
+              variant="contained"
+            >
+              weezer_buddy.wav
+            </Button>
+          )}
+        </Box>
+        {/* <TextField label="Prompt"></TextField> */}
+
         {!showBtn && (
           <Box display={"flex"}>
             <FormGroup>
@@ -247,90 +276,92 @@ const Snippets = (props: Props) => {
           </Box>
         )}
       </Box>
-      <Box mt={4} width="100%" display={"flex"} justifyContent="center">
-        <BubbleUI
-          options={{
-            size: 140,
-            minSize: 70,
-            gutter: 30,
-            provideProps: true,
-            numCols: 3,
-            fringeWidth: 100,
-            yRadius: 60,
-            xRadius: 120,
-            cornerRadius: 100,
-            showGuides: false,
-            compact: true,
-            gravitation: 9,
-          }}
-          className="myBubbleUI"
-        >
-          {Object.keys(audioListObj).map((key) => (
-            <Box
-              className="childComponent"
-              key={key}
-              style={{
-                backgroundColor: audioListObj[key].color,
-              }}
-            >
+      {!showBtn && (
+        <Box mt={4} width="100%" display={"flex"} justifyContent="center">
+          <BubbleUI
+            options={{
+              size: 140,
+              minSize: 20,
+              gutter: 40,
+              provideProps: true,
+              numCols: 4,
+              fringeWidth: 160,
+              yRadius: 130,
+              xRadius: 220,
+              cornerRadius: 50,
+              showGuides: false,
+              compact: true,
+              gravitation: 5,
+            }}
+            className="myBubbleUI"
+          >
+            {Object.keys(audioListObj).map((key) => (
               <Box
-                position={"absolute"}
-                height="100%"
-                width={"100%"}
-                borderRadius="50%"
-                sx={{
-                  animation:
-                    playNo === key ? "waves .5s linear infinite" : "unset",
-                  animationDelay: "1s",
-                  background: audioListObj[key].color,
-                  transition: "5s ease",
+                className="childComponent"
+                key={key}
+                style={{
+                  backgroundColor: audioListObj[key].color,
                 }}
-              ></Box>
-
-              {audioListObj[key].url ? (
-                <Button
-                  color="secondary"
-                  sx={{ height: "100%", width: "100%", borderRadius: "50%" }}
-                  onClick={() => {
-                    if (playNo === key) {
-                      stopPlayer();
-                      playPlayer();
-                    } else setPlayNo(key);
+              >
+                <Box
+                  position={"absolute"}
+                  height="100%"
+                  width={"100%"}
+                  borderRadius="50%"
+                  sx={{
+                    animation:
+                      playNo === key ? "waves 2s linear infinite" : "unset",
+                    animationDelay: "1s",
+                    background: audioListObj[key].color,
+                    transition: "5s ease",
                   }}
-                >
-                  {audioListObj[key].name}
-                  {isTonePlaying && playNo === key ? (
-                    <PauseIcon />
-                  ) : (
-                    <PlayArrowRoundedIcon />
-                  )}
-                </Button>
-              ) : // <Box height={'100%'} width='100%' >
-              //   <Typography>{audioListObj[key].name}</Typography>
-              //   <Fab color="info" onClick={() => setPlayNo(key)}>
+                ></Box>
 
-              //   </Fab>
-              // </Box>
-              loadingNo === parseInt(key) ? (
-                <Skeleton
-                  variant="circular"
-                  width={64}
-                  height={64}
-                  animation="wave"
-                />
-              ) : (
-                <Typography>.</Typography>
-              )}
-            </Box>
-          ))}
-        </BubbleUI>
-        {/* <Bubbles
+                {audioListObj[key].url ? (
+                  <Button
+                    color="secondary"
+                    sx={{ height: "100%", width: "100%", borderRadius: "50%" }}
+                    onClick={() => {
+                      if (playNo === key) {
+                        stopPlayer();
+                        playPlayer();
+                      } else setPlayNo(key);
+                    }}
+                  >
+                    {audioListObj[key].name}
+                    {isTonePlaying && playNo === key ? (
+                      <PauseIcon />
+                    ) : (
+                      <PlayArrowRoundedIcon />
+                    )}
+                  </Button>
+                ) : // <Box height={'100%'} width='100%' >
+                //   <Typography>{audioListObj[key].name}</Typography>
+                //   <Fab color="info" onClick={() => setPlayNo(key)}>
+
+                //   </Fab>
+                // </Box>
+                loadingNo === parseInt(key) ? (
+                  <Skeleton
+                    variant="circular"
+                    width={64}
+                    height={64}
+                    animation="wave"
+                  />
+                ) : (
+                  <Typography>.</Typography>
+                )}
+              </Box>
+            ))}
+          </BubbleUI>
+          {/* <Bubbles
           onPlay={() => {
             setPlayNo(Math.floor(Math.random() * 4) + 1);
           }}
           onFirstClick={onFetchAudio}
         /> */}
-      </Box>
+        </Box>
+      )}
     </Box>
   );
 };

@@ -256,14 +256,8 @@ export const useTonejs = (
   };
 
   const switchLoop = (isTemp?: boolean, val?: boolean) => {
-    if (isTemp) {
-      if (!val) {
-        setLoop(tempLoopVar.current);
-      } else {
-        tempLoopVar.current = loop;
-        setLoop(true);
-      }
-    } else {
+    if (currentPlayer) {
+      currentPlayer.loop = !loop;
       setLoop(!loop);
     }
   };
