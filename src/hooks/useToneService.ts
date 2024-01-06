@@ -197,7 +197,7 @@ export const useTonejs = (
     setCurrentPlayer(player);
     await Tone.loaded();
     if (isMuted) player.mute = true;
-    player.loop = true;
+    // player.loop = true;
     player.fadeIn = 0.3;
     player.fadeOut = 0.3;
     Tone.Transport.start();
