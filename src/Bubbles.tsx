@@ -4,7 +4,7 @@ import { useState } from "react";
 import BubbleUI from "react-bubble-ui";
 import "react-bubble-ui/dist/index.css";
 
-const getColorsForGroup = (name) => {
+const getColorsForGroup = (name: string) => {
   switch (name) {
     case "House":
     case "Ambient":
@@ -25,7 +25,7 @@ const getColorsForGroup = (name) => {
       return "rgb(208, 43, 250)";
   }
 };
-const Bubbles = (props) => {
+const Bubbles = (props: any) => {
   const [data, setData] = useState([
     "House",
     "Ambient",
