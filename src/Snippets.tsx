@@ -99,9 +99,7 @@ const Snippets = (props: Props) => {
           color: getColorsForGroup(name),
         },
       });
-      if (prevLoadingNo === 3) {
-        setPlayNo("3");
-      }
+      setPlayNo(prevLoadingNo.toString());
       // setAudioList([...audioList, audio1]);
       // setPlayNo(1);
     }
