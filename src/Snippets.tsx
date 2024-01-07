@@ -128,7 +128,7 @@ const Snippets = (props: Props) => {
     formData.append("audio", melody);
     const res = await axios.post(
       // "http://127.0.0.1:8081/create-snippet",
-      "http://35.239.6.232:8081/create-snippet",
+      `${process.env.VITE_GPU_REMIX_SERVER}/create-snippet`,
       formData,
       { responseType: "blob" }
     );
@@ -330,7 +330,6 @@ const Snippets = (props: Props) => {
         </Box>
         <Box
           border={"1px dashed grey"}
-          p={4}
           borderRadius="8px"
           onClick={() => {
             initializeTone();
@@ -340,7 +339,10 @@ const Snippets = (props: Props) => {
           justifyContent={"center"}
         >
           {!melody ? (
-            <div {...getRootProps({ className: "dropzone" })}>
+            <div
+              {...getRootProps({ className: "dropzone" })}
+              style={{ cursor: "default", padding: "24px" }}
+            >
               <input {...getInputProps()} />
               <Typography>
                 Drop your Favorite Music to start NUMIXing
