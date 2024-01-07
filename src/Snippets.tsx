@@ -4,11 +4,12 @@ import {
   FormControlLabel,
   FormGroup,
   Skeleton,
+  TextField,
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useTonejs } from "./hooks/useToneService";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -17,6 +18,7 @@ import { LoadingButton } from "@mui/lab";
 import BubbleUI from "react-bubble-ui";
 import "react-bubble-ui/dist/index.css";
 import { useDropzone } from "react-dropzone";
+// import { client } from "@gradio/client";
 
 type Props = {};
 const getColorsForGroup = (name: string) => {
@@ -51,10 +53,15 @@ const genreNames = [
   "The Rocker",
 ];
 const Snippets = (props: Props) => {
+  const [melody, setMelody] = useState<File>();
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setMelody(acceptedFiles[0]);
+  }, []);
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
-    noClick: true,
+    onDrop,
+    maxFiles: 1,
+    accept: { "audio/mpeg": [".mp3"], "audio/wav": [".wav"] },
   });
-
   const {
     initializeTone,
     playAudio,
@@ -86,7 +93,9 @@ const Snippets = (props: Props) => {
   const [loadingNo, setLoadingNo] = useState(-1);
   const [prevLoadingNo, setPrevLoadingNo] = useState(-1);
   const [playNo, setPlayNo] = useState<string>("");
-  const [showBtn, setShowBtn] = useState(true);
+  const [durationArr, setDurationArr] = useState<number[]>([
+    3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  ]);
 
   useEffect(() => {
     if (newAudio) {
@@ -105,16 +114,81 @@ const Snippets = (props: Props) => {
     }
   }, [newAudio]);
 
-  const fetchAudio = async (prompt: string, duration: string) => {
+  const fetchAudio = async (
+    prompt: string,
+    duration: string
+  ): Promise<string> => {
+    if (!melody) {
+      alert("melody missing");
+      return "";
+    }
     const formData = new FormData();
     formData.append("prompt", prompt);
     formData.append("duration", duration);
+    formData.append("audio", melody);
     const res = await axios.post(
-      "http://127.0.0.1:8081/create-snippet",
-      formData
+      // "http://127.0.0.1:8081/create-snippet",
+      "http://35.239.6.232:8081/create-snippet",
+      formData,
+      { responseType: "blob" }
     );
+    // const app = await client("nusic/MusicGen", {});
+    // try {
+    // const melodyBlob = await new Promise((res) => {
+    //   const reader = new FileReader();
+    //   reader.onload = function (event: any) {
+    //     const blob = event.target.result;
+    //     res(blob);
+    //   };
+    //   reader.readAsArrayBuffer(melody);
+    // });
+    // const response = await fetch(
+    //   "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F2.wav?alt=media&token=d8da6d2a-65c1-4029-b9c9-a6ec3e760a2e"
+    // );
+    // const melodyBlob = await response.blob();
+    // const result = await app.predict("/predict", [melodyBlob]);
+    // const app_info = await app.view_api();
 
-    const url = URL.createObjectURL(res.data);
+    // console.log(app_info);
+    // const result = await app.predict(3, [
+    //   "Howdy!", // string  in 'parameter_28' Dataset component
+    // ]);
+    // const submitData = app.submit(0, ["House", melody]);
+    // await new Promise((res) =>
+    //   submitData.on("data", async (event) => {
+    //     if (event.data.length) {
+    //       debugger;
+    //       res("");
+    //     }
+    //     //     console.log("HF data processing");
+    //   })
+    // );
+    // const result = await app.predict(3, [
+    //   ["Howdy!"], // string  in 'parameter_28' Dataset component
+    // ]);
+    // debugger;
+    // const result = await app.predict(1, [
+    //   "melody",
+    //   "House",
+    //   melodyBlob,
+    //   3,
+    //   250,
+    //   0,
+    //   1,
+    //   3,
+    // ]);
+    // const submitRes = await app.submit("/predict", [melody]);
+    // await new Promise((res) =>
+    //   submitRes.on("data", (data) => {
+    //     debugger;
+    //     res("");
+    //   })
+    // );
+    // } catch (e) {
+    //   debugger;
+    // }
+    const url = URL.createObjectURL(new Blob([res.data]));
+    return url;
   };
 
   useEffect(() => {
@@ -123,77 +197,95 @@ const Snippets = (props: Props) => {
     }
   }, [playNo]);
 
+  useEffect(() => {
+    if (melody) {
+      onFetchAudio();
+    }
+  }, [melody]);
+
   const onFetchAudio = async () => {
-    initializeTone();
     setLoadingNo(3);
-    // await fetchAudio("House", "1");
-    await new Promise((res) => setTimeout(res, 4000));
+    let url1 = await fetchAudio("House", durationArr[0].toString());
+    // await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(3);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F3.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+      url1
+      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F3.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(1);
-    // await fetchAudio("Rock", "2");
-    await new Promise((res) => setTimeout(res, 4000));
+    // await new Promise((res) => setTimeout(res, 4000));
+    url1 = await fetchAudio("Dubstep", durationArr[1].toString());
     setPrevLoadingNo(1);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F1.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+      url1
+      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F1.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(0);
-    await new Promise((res) => setTimeout(res, 4000));
+    // await new Promise((res) => setTimeout(res, 4000));
+    url1 = await fetchAudio("Rock", durationArr[2].toString());
     setPrevLoadingNo(0);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F0.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+      url1
+      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F0.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(2);
-    // await fetchAudio("Trance", "2");
-    await new Promise((res) => setTimeout(res, 4000));
+    url1 = await fetchAudio("Trance", durationArr[3].toString());
+    // await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(2);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F2.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+      url1
+      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F2.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(5);
-    // await fetchAudio("Indian", "2");
-    await new Promise((res) => setTimeout(res, 4000));
+    url1 = await fetchAudio("Indian", durationArr[4].toString());
+    // await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(5);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F5.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+      url1
+      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F5.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(8);
-    // await fetchAudio("Americana", "3");
-    await new Promise((res) => setTimeout(res, 4000));
+    url1 = await fetchAudio("Americana", durationArr[5].toString());
+    // await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(8);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F8.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+      url1
+      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F8.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(4);
-    // await fetchAudio("Americana", "3");
-    await new Promise((res) => setTimeout(res, 4000));
+    url1 = await fetchAudio("Americana", durationArr[6].toString());
+    // await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(4);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F4.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+      url1
+      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F4.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(7);
-    // await fetchAudio("Americana", "3");
-    await new Promise((res) => setTimeout(res, 4000));
+    url1 = await fetchAudio("Americana", durationArr[7].toString());
+    // await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(7);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F7.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+      url1
+      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F7.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(6);
-    // await fetchAudio("Americana", "3");
-    await new Promise((res) => setTimeout(res, 4000));
+    url1 = await fetchAudio("Americana", durationArr[8].toString());
+    // await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(6);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F6.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+      url1
+      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F6.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
     setLoadingNo(9);
-    // await fetchAudio("Americana", "3");
-    await new Promise((res) => setTimeout(res, 4000));
+    url1 = await fetchAudio("Americana", durationArr[9].toString());
+    // await new Promise((res) => setTimeout(res, 4000));
     setPrevLoadingNo(9);
     setNewAudio(
-      "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F9.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+      url1
+      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F9.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
     );
+
+    // ---------------
     // setLoadingNo(9);
     // // await fetchAudio("Americana", "3");
     // await new Promise((res) => setTimeout(res, 4000));
@@ -210,7 +302,7 @@ const Snippets = (props: Props) => {
   };
 
   return (
-    <Box height={"90vh"} width={{ xs: "100vw", md: "unset" }}>
+    <Box height={"90vh"} width={{ xs: "100vw", md: "unset" }} pt={2}>
       <Box
         display={"flex"}
         flexDirection="column"
@@ -218,21 +310,36 @@ const Snippets = (props: Props) => {
         alignItems={"center"}
         gap={2}
         width="100%"
-        height={showBtn ? "100%" : "10%"}
+        height={!melody ? "100%" : "10%"}
         sx={{ transition: "height 1s" }}
       >
+        <Box display={"flex"} alignItems="center">
+          <TextField
+            disabled={!!melody}
+            defaultValue={durationArr.join(",")}
+            onChange={(e) =>
+              setDurationArr(
+                e.target.value
+                  .split(",")
+                  .map((x) => parseInt(x))
+                  .filter((x) => !!x)
+              )
+            }
+          />{" "}
+          <Typography>({durationArr.length})</Typography>
+        </Box>
         <Box
           border={"1px dashed grey"}
           p={4}
           borderRadius="8px"
           onClick={() => {
-            setShowBtn(false);
-            onFetchAudio();
+            initializeTone();
+            // onFetchAudio();
           }}
           display="flex"
           justifyContent={"center"}
         >
-          {showBtn ? (
+          {!melody ? (
             <div {...getRootProps({ className: "dropzone" })}>
               <input {...getInputProps()} />
               <Typography>
@@ -241,11 +348,7 @@ const Snippets = (props: Props) => {
             </div>
           ) : (
             <Button
-              onClick={() => {
-                setShowBtn(false);
-                onFetchAudio();
-              }}
-              disabled={!showBtn}
+              disabled={!!melody}
               color="secondary"
               // size="small"
               sx={{ width: 300, textTransform: "none" }}
@@ -257,7 +360,7 @@ const Snippets = (props: Props) => {
         </Box>
         {/* <TextField label="Prompt"></TextField> */}
 
-        {!showBtn && (
+        {melody && (
           <Box display={"flex"}>
             <FormGroup>
               <FormControlLabel
@@ -274,7 +377,7 @@ const Snippets = (props: Props) => {
           </Box>
         )}
       </Box>
-      {!showBtn && (
+      {melody && (
         <Box mt={4} width="100%" display={"flex"} justifyContent="center">
           <BubbleUI
             options={{
