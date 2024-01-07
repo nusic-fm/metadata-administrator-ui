@@ -128,7 +128,7 @@ const Snippets = (props: Props) => {
     formData.append("audio", melody);
     const res = await axios.post(
       // "http://127.0.0.1:8081/create-snippet",
-      `${process.env.VITE_GPU_REMIX_SERVER}/create-snippet`,
+      `${import.meta.env.VITE_GPU_REMIX_SERVER}/create-snippet`,
       formData,
       { responseType: "blob" }
     );
