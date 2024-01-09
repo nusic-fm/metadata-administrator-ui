@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { Box } from "@mui/system";
 import axios from "axios";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useTonejs } from "./hooks/useToneService";
 import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import PauseIcon from "@mui/icons-material/Pause";
@@ -52,6 +52,16 @@ const genreNames = [
   "In Da Club",
   "The Rocker",
 ];
+
+const testUrls = (idx: number) =>
+  `https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F${idx}.wav?alt=media`;
+type SnippetProp = {
+  url: string;
+  name: string;
+  color: string;
+  position: number;
+  duration: number;
+};
 const Snippets = (props: Props) => {
   const [melody, setMelody] = useState<File>();
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -75,44 +85,21 @@ const Snippets = (props: Props) => {
     () => {}
   );
   const [audioListObj, setAudioListObj] = useState<{
-    [key: string]: { url: string; name: string; color: string };
-  }>({
-    0: { url: "", name: "", color: "" },
-    1: { url: "", name: "", color: "" },
-    2: { url: "", name: "", color: "" },
-    3: { url: "", name: "", color: "" },
-    4: { url: "", name: "", color: "" },
-    5: { url: "", name: "", color: "" },
-    6: { url: "", name: "", color: "" },
-    7: { url: "", name: "", color: "" },
-    8: { url: "", name: "", color: "" },
-    9: { url: "", name: "", color: "" },
-  });
+    [key: string]: SnippetProp;
+  }>({});
+  const audioListObjRef = useRef<any>({});
+
   const [newAudio, setNewAudio] = useState<string>();
 
   const [loadingNo, setLoadingNo] = useState(-1);
   const [prevLoadingNo, setPrevLoadingNo] = useState(-1);
-  const [playNo, setPlayNo] = useState<string>("");
+  const [playPosition, setPlayPosition] = useState<number>(-1);
   const [durationArr, setDurationArr] = useState<number[]>([
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
   ]);
-
-  useEffect(() => {
-    if (newAudio) {
-      const name = genreNames[prevLoadingNo];
-      setAudioListObj({
-        ...audioListObj,
-        [prevLoadingNo]: {
-          url: newAudio,
-          name: name,
-          color: getColorsForGroup(name),
-        },
-      });
-      setPlayNo(prevLoadingNo.toString());
-      // setAudioList([...audioList, audio1]);
-      // setPlayNo(1);
-    }
-  }, [newAudio]);
+  const [positionArr, setPositionArr] = useState<number[]>([
+    10, 8, 2, 5, 1, 6, 3, 7, 9, 4,
+  ]);
 
   const fetchAudio = async (
     prompt: string,
@@ -192,10 +179,11 @@ const Snippets = (props: Props) => {
   };
 
   useEffect(() => {
-    if (audioListObj[playNo]?.url) {
-      playAudio(audioListObj[playNo].url, true);
+    const url = audioListObj[playPosition]?.url;
+    if (url) {
+      playAudio(url, true);
     }
-  }, [playNo]);
+  }, [playPosition]);
 
   useEffect(() => {
     if (melody) {
@@ -204,102 +192,63 @@ const Snippets = (props: Props) => {
   }, [melody]);
 
   const onFetchAudio = async () => {
-    setLoadingNo(3);
-    let url1 = await fetchAudio("House", durationArr[0].toString());
-    // await new Promise((res) => setTimeout(res, 4000));
-    setPrevLoadingNo(3);
-    setNewAudio(
-      url1
-      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F3.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
-    );
-    setLoadingNo(1);
-    // await new Promise((res) => setTimeout(res, 4000));
-    url1 = await fetchAudio("Dubstep", durationArr[1].toString());
-    setPrevLoadingNo(1);
-    setNewAudio(
-      url1
-      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F1.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
-    );
-    setLoadingNo(0);
-    // await new Promise((res) => setTimeout(res, 4000));
-    url1 = await fetchAudio("Rock", durationArr[2].toString());
-    setPrevLoadingNo(0);
-    setNewAudio(
-      url1
-      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F0.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
-    );
-    setLoadingNo(2);
-    url1 = await fetchAudio("Trance", durationArr[3].toString());
-    // await new Promise((res) => setTimeout(res, 4000));
-    setPrevLoadingNo(2);
-    setNewAudio(
-      url1
-      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F2.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
-    );
-    setLoadingNo(5);
-    url1 = await fetchAudio("Indian", durationArr[4].toString());
-    // await new Promise((res) => setTimeout(res, 4000));
-    setPrevLoadingNo(5);
-    setNewAudio(
-      url1
-      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F5.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
-    );
-    setLoadingNo(8);
-    url1 = await fetchAudio("Americana", durationArr[5].toString());
-    // await new Promise((res) => setTimeout(res, 4000));
-    setPrevLoadingNo(8);
-    setNewAudio(
-      url1
-      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F8.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
-    );
-    setLoadingNo(4);
-    url1 = await fetchAudio("Americana", durationArr[6].toString());
-    // await new Promise((res) => setTimeout(res, 4000));
-    setPrevLoadingNo(4);
-    setNewAudio(
-      url1
-      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F4.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
-    );
-    setLoadingNo(7);
-    url1 = await fetchAudio("Americana", durationArr[7].toString());
-    // await new Promise((res) => setTimeout(res, 4000));
-    setPrevLoadingNo(7);
-    setNewAudio(
-      url1
-      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F7.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
-    );
-    setLoadingNo(6);
-    url1 = await fetchAudio("Americana", durationArr[8].toString());
-    // await new Promise((res) => setTimeout(res, 4000));
-    setPrevLoadingNo(6);
-    setNewAudio(
-      url1
-      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F6.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
-    );
-    setLoadingNo(9);
-    url1 = await fetchAudio("Americana", durationArr[9].toString());
-    // await new Promise((res) => setTimeout(res, 4000));
-    setPrevLoadingNo(9);
-    setNewAudio(
-      url1
-      // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F9.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
-    );
+    // .sort(() => Math.random() - 0.5)
 
-    // ---------------
-    // setLoadingNo(9);
-    // // await fetchAudio("Americana", "3");
-    // await new Promise((res) => setTimeout(res, 4000));
-    // setNewAudio(
-    //   "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.3.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
-    // );
-    // setLoadingNo(10);
-    // // await fetchAudio("Americana", "3");
-    // await new Promise((res) => setTimeout(res, 4000));
-    // setNewAudio(
-    //   "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/test_snippets%2F2.3.wav?alt=media&token=883dd5e3-de2f-4cf3-bf14-8842cfd2a96c"
-    // );
-    setLoadingNo(-1);
+    // const renderOrder = positionArr.sort(() => Math.random() - 0.5);
+    // [1, 2, 3, 4, 5, 6, 7, 8, 9].sort();
+    // positionArr.sort(() => Math.random() - 0.5);
+    const renderOrder = [...positionArr].sort();
+
+    setLoadingNo(renderOrder[0]);
+    renderOrder.map(async (no, i) => {
+      const prompt = genreNames[i];
+      // new Promise((res) => setTimeout(res, (i + 1) * 1000))
+      fetchAudio(prompt, durationArr[i].toString()).then((url) => {
+        audioListObjRef.current = {
+          ...audioListObjRef.current,
+          [no.toString()]: {
+            url,
+            // : testUrls(no - 1),
+            name: prompt,
+            color: getColorsForGroup(prompt),
+            duration: durationArr[i],
+          },
+        };
+        setPrevLoadingNo(no);
+        setNewAudio(
+          url
+          // no.toString()
+          // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F3.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+        );
+        setLoadingNo(renderOrder[renderOrder.indexOf(no) + 1]);
+      });
+      // fetchAudio(prompt, durationArr[i].toString()).then((url) => {
+      //   audioListObjRef.current = {
+      //     ...audioListObjRef.current,
+      //     [no.toString()]: {
+      //       url: newAudio,
+      //       name: prompt,
+      //       color: getColorsForGroup(prompt),
+      //     },
+      //   };
+      // setPrevLoadingNo(3);
+
+      // });
+    });
   };
+
+  useEffect(() => {
+    if (newAudio) {
+      // const name = genreNames[prevLoadingNo];
+      setAudioListObj({
+        ...audioListObjRef.current,
+      });
+      // setPlayPosition(prevLoadingNo);
+      // setAudioList([...audioList, audio1]);
+      // setPlayNo(1);
+    }
+  }, [newAudio]);
+  console.log(loadingNo);
 
   return (
     <Box height={"90vh"} width={{ xs: "100vw", md: "unset" }} pt={2}>
@@ -398,68 +347,118 @@ const Snippets = (props: Props) => {
             }}
             className="myBubbleUI"
           >
-            {Object.keys(audioListObj).map((key) => (
-              <Box
-                className="childComponent"
-                key={key}
-                style={{
-                  backgroundColor: audioListObj[key].color,
-                }}
-              >
-                <Box
-                  position={"absolute"}
-                  height="100%"
-                  width={"100%"}
-                  borderRadius="50%"
-                  sx={{
-                    animation:
-                      playNo === key ? "waves 2s linear infinite" : "unset",
-                    animationDelay: "1s",
-                    background: audioListObj[key].color,
-                    transition: "5s ease",
-                  }}
-                ></Box>
+            {positionArr.map((pos) => {
+              const snippet = audioListObj[pos];
 
-                {audioListObj[key].url ? (
-                  <Button
-                    color="secondary"
-                    sx={{ height: "100%", width: "100%", borderRadius: "50%" }}
-                    onClick={() => {
-                      if (playNo === key) {
-                        stopPlayer();
-                        playPlayer();
-                      } else setPlayNo(key);
+              // if (loadingNo === pos) {
+              //   return (
+              //     <Box className="childComponent" key={pos}>
+              //       <Skeleton
+              //         variant="circular"
+              //         width={64}
+              //         height={64}
+              //         animation="wave"
+              //       />
+              //     </Box>
+              //   );
+              // }
+              if (snippet || loadingNo === pos) {
+                return (
+                  <Box
+                    className="childComponent"
+                    key={pos}
+                    style={{
+                      backgroundColor: snippet?.color ?? "unset",
+                      transition: "0.2s ease",
                     }}
+                    height={loadingNo === pos ? "64px" : "140px"}
+                    width={loadingNo === pos ? "64px" : "140px"}
                   >
-                    {audioListObj[key].name}
-                    {isTonePlaying && playNo === key ? (
-                      <PauseIcon />
-                    ) : (
-                      <PlayArrowRoundedIcon />
+                    {snippet && playPosition === pos && (
+                      <Box
+                        position={"absolute"}
+                        height="100%"
+                        width={"100%"}
+                        borderRadius="50%"
+                        sx={{
+                          animation: "waves 2s linear infinite",
+                          animationDelay: "1s",
+                          background: snippet.color,
+                          transition: "5s ease",
+                        }}
+                      ></Box>
                     )}
-                  </Button>
-                ) : // <Box height={'100%'} width='100%' >
-                //   <Typography>{audioListObj[key].name}</Typography>
-                //   <Fab color="info" onClick={() => setPlayNo(key)}>
+                    {loadingNo === pos ? (
+                      <Skeleton
+                        variant="circular"
+                        width={64}
+                        height={64}
+                        animation="wave"
+                      />
+                    ) : (
+                      <Button
+                        color="secondary"
+                        sx={{
+                          height: "100%",
+                          width: "100%",
+                          borderRadius: "50%",
+                        }}
+                        onClick={() => {
+                          if (playPosition === pos) {
+                            stopPlayer();
+                            playPlayer();
+                          } else setPlayPosition(pos);
+                        }}
+                      >
+                        {snippet.name}
+                        {isTonePlaying && playPosition === pos ? (
+                          <PauseIcon />
+                        ) : (
+                          <PlayArrowRoundedIcon />
+                        )}
+                      </Button>
+                    )}
 
-                //   </Fab>
-                // </Box>
-                loadingNo === parseInt(key) ? (
+                    {/* 
+                    {snippet?.url ? (
+                      
+                    ) : // <Box height={'100%'} width='100%' >
+                    //   <Typography>{audioListObj[key].name}</Typography>
+                    //   <Fab color="info" onClick={() => setPlayPosition(key)}>
+
+                    //   </Fab>
+                    // </Box>
+                    loadingNo === pos ? (
+                      <Skeleton
+                        variant="circular"
+                        width={24}
+                        height={24}
+                        animation="wave"
+                      />
+                    ) : (
+                      <Typography>.</Typography>
+                    )} */}
+                  </Box>
+                );
+              }
+
+              // if (!snippet) {
+              return (
+                <Box className="childComponent" key={pos}>
                   <Skeleton
                     variant="circular"
-                    width={64}
-                    height={64}
+                    width={24}
+                    height={24}
                     animation="wave"
                   />
-                ) : (
-                  <Typography>.</Typography>
-                )}
-              </Box>
-            ))}
+                </Box>
+              );
+              // }
+            })}
           </BubbleUI>
           {/* <Bubbles
           onPlay={() => {
-            setPlayNo(Math.floor(Math.random() * 4) + 1);
+            setPlayPosition(Math.floor(Math.random() * 4) + 1);
           }}
           onFirstClick={onFetchAudio}
         /> */}
