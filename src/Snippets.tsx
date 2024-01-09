@@ -1,9 +1,16 @@
 import {
   Button,
   Checkbox,
+  Chip,
+  FormControl,
   FormControlLabel,
   FormGroup,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
   Skeleton,
+  Switch,
   TextField,
   Typography,
 } from "@mui/material";
@@ -18,6 +25,7 @@ import { LoadingButton } from "@mui/lab";
 import BubbleUI from "react-bubble-ui";
 import "react-bubble-ui/dist/index.css";
 import { useDropzone } from "react-dropzone";
+import RefreshRounded from "@mui/icons-material/RefreshRounded";
 // import { client } from "@gradio/client";
 
 type Props = {};
@@ -100,6 +108,23 @@ const Snippets = (props: Props) => {
   const [positionArr, setPositionArr] = useState<number[]>([
     10, 8, 2, 5, 1, 6, 3, 7, 9, 4,
   ]);
+
+  const [loadingStatus, setLoadingStatus] = useState(false);
+  const [hfStatus, setHfStatus] = useState<string>();
+  const [machineType, setMachineType] = useState<string>("");
+
+  const refreshHfStatus = async () => {
+    setLoadingStatus(true);
+    const res = await axios.get(
+      "https://huggingface.co/api/spaces/nusic/MusicGen"
+    );
+    setHfStatus(res.data?.runtime?.stage);
+    setMachineType(
+      res.data?.runtime?.hardware?.current ||
+        res.data?.runtime?.hardware?.requested
+    );
+    setLoadingStatus(false);
+  };
 
   const fetchAudio = async (
     prompt: string,
@@ -216,9 +241,8 @@ const Snippets = (props: Props) => {
         };
         setPrevLoadingNo(no);
         setNewAudio(
-          url
-          // no.toString()
-          // "https://firebasestorage.googleapis.com/v0/b/dev-numix.appspot.com/o/shorts%2F3.wav?alt=media&token=7a5b4809-eec5-4985-82bd-ec396903ec84"
+          // testUrls(i)
+          no.toString()
         );
         setLoadingNo(renderOrder[renderOrder.indexOf(no) + 1]);
       });
@@ -243,25 +267,107 @@ const Snippets = (props: Props) => {
       setAudioListObj({
         ...audioListObjRef.current,
       });
-      // setPlayPosition(prevLoadingNo);
+      setPlayPosition(prevLoadingNo);
       // setAudioList([...audioList, audio1]);
       // setPlayNo(1);
     }
   }, [newAudio]);
-  console.log(loadingNo);
+
+  useEffect(() => {
+    refreshHfStatus();
+  }, []);
 
   return (
-    <Box height={"90vh"} width={{ xs: "100vw", md: "unset" }} pt={2}>
+    <Box height={"90vh"} width={{ xs: "100vw", md: "unset" }}>
       <Box
         display={"flex"}
         flexDirection="column"
-        justifyContent="center"
+        // justifyContent="center"
         alignItems={"center"}
         gap={2}
         width="100%"
-        height={!melody ? "100%" : "10%"}
+        height={!melody ? "100%" : "30%"}
         sx={{ transition: "height 1s" }}
+        // mt={2}
       >
+        <Box display={"flex"} alignItems="center" gap={4}>
+          <FormControl sx={{ width: "200px" }} size="small">
+            <InputLabel id="demo-simple-select-label">Machine Type</InputLabel>
+            <Select
+              label="Machine Type"
+              value={machineType}
+              onChange={(e) => setMachineType(e.target.value)}
+            >
+              <MenuItem value={"t4-small"}>t4-small ($0.6)</MenuItem>
+              <MenuItem value={"t4-medium"}>t4-medium ($0.9)</MenuItem>
+              <MenuItem value={"a10g-small"}>a10g-small ($1.5)</MenuItem>
+              <MenuItem value={"a10g-medium"}>a10g-medium ($3.15)</MenuItem>
+            </Select>
+          </FormControl>
+          <Button
+            variant="outlined"
+            color="warning"
+            onClick={async () => {
+              setLoadingStatus(true);
+              const formData = new FormData();
+              formData.append("hardware", machineType);
+              await axios.post(
+                `${import.meta.env.VITE_GPU_REMIX_SERVER}/upgrade-space`,
+                formData
+              );
+              await refreshHfStatus();
+              setLoadingStatus(false);
+            }}
+          >
+            Upgrade
+          </Button>
+        </Box>
+        <Box display={"flex"} alignItems="center">
+          <FormControlLabel
+            sx={{
+              display: "block",
+            }}
+            control={
+              <Switch
+                disabled={loadingStatus || hfStatus === "BUILDING"}
+                checked={hfStatus === "RUNNING" || hfStatus === "BUILDING"}
+                onChange={async (e, checked) => {
+                  debugger;
+                  if (hfStatus === "RUNNING") {
+                    setLoadingStatus(true);
+                    await axios.post(
+                      `${import.meta.env.VITE_GPU_REMIX_SERVER}/pause-space`
+                    );
+                    await refreshHfStatus();
+                    setLoadingStatus(false);
+                  } else {
+                    setLoadingStatus(true);
+                    await axios.post(
+                      `${import.meta.env.VITE_GPU_REMIX_SERVER}/start-space`
+                    );
+                    await refreshHfStatus();
+                    setLoadingStatus(false);
+                  }
+                }}
+                name="loading"
+                color={
+                  hfStatus === "RUNNING" || hfStatus === "BUILDING"
+                    ? "error"
+                    : "warning"
+                }
+              />
+            }
+            label="VM"
+          />
+          <Chip
+            label={hfStatus || "--"}
+            color={hfStatus === "RUNNING" ? "error" : "warning"}
+            size="small"
+          ></Chip>
+          <IconButton onClick={refreshHfStatus}>
+            <RefreshRounded fontSize="small" />
+          </IconButton>
+        </Box>
         <Box display={"flex"} alignItems="center">
           <TextField
             disabled={!!melody}
