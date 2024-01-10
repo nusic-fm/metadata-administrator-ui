@@ -115,3 +115,19 @@ export const createFileFromUrl = async (name: string, url: string) => {
   return new File([data], name, metadata);
   // ... do something with the file or return it
 };
+export const bufferToBlob = (buffer: any) => {
+  const audioData = buffer.getChannelData(0);
+  const bufferLength = audioData.length * Float32Array.BYTES_PER_ELEMENT;
+  const audioBuffer = new ArrayBuffer(bufferLength);
+  const audioView = new DataView(audioBuffer);
+
+  for (let i = 0; i < audioData.length; i++) {
+    audioView.setFloat32(
+      i * Float32Array.BYTES_PER_ELEMENT,
+      audioData[i],
+      true
+    );
+  }
+
+  return new Blob([audioBuffer], { type: "audio/wav" });
+};

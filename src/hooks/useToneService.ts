@@ -35,6 +35,53 @@ export const useTonejs = (
     }
   };
 
+  const sonify = () => {
+    // Initialize Tone.js
+    initializeTone();
+    // Initialize Tone.js
+    const synth = new Tone.Synth().toDestination();
+
+    // Function to play a sequence of clicks
+    function playClickSequence() {
+      // 16th notes for 2 seconds
+      playNotes("1000", "4n", 4, () => {
+        playNotes("1000", "8n", 4, () => {
+          playNotes("1000", "16n", 8, () => {
+            // 32nd notes for 2 seconds
+            playNotes("1000", "32n", 16, () => {
+              playNotes("100", "64n", 4, () => {
+                // 64th notes for 2 seconds
+                // playNotes("1000", "64n", 32, () => {});
+              });
+            });
+          });
+        });
+      });
+    }
+
+    // Function to play a series of notes
+    function playNotes(
+      note: any,
+      duration: any,
+      numberOfNotes: any,
+      onComplete: any
+    ) {
+      let time = 0;
+
+      for (let i = 0; i < numberOfNotes; i++) {
+        // Schedule each note with Tone.js
+        synth.triggerAttackRelease(note, duration, `+${time}`);
+        time += Tone.Time(duration).toSeconds();
+      }
+
+      // Call the onComplete callback after the sequence is complete
+      if (onComplete) {
+        setTimeout(onComplete, time * 1000);
+      }
+    }
+    playClickSequence();
+  };
+
   const setEvents = () => {
     Tone.Transport.on("start", (...args) => {
       console.log("Tone Started");
@@ -308,5 +355,6 @@ export const useTonejs = (
     switchLoop,
     loop,
     initializeTone,
+    sonify,
   };
 };

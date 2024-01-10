@@ -70,11 +70,15 @@ type SnippetProp = {
   position: number;
   duration: number;
 };
+
 const Snippets = (props: Props) => {
   const [melody, setMelody] = useState<File>();
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    setMelody(acceptedFiles[0]);
+    const file = acceptedFiles[0];
+    setMelody(file);
   }, []);
+
   const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
     onDrop,
     maxFiles: 1,
@@ -88,6 +92,7 @@ const Snippets = (props: Props) => {
     switchLoop,
     playPlayer,
     stopPlayer,
+    sonify,
   } = useTonejs(
     () => {},
     () => {}
@@ -99,11 +104,11 @@ const Snippets = (props: Props) => {
 
   const [newAudio, setNewAudio] = useState<string>();
 
-  const [loadingNo, setLoadingNo] = useState(-1);
+  // const [loadingNo, setLoadingNo] = useState(-1);
   const [prevLoadingNo, setPrevLoadingNo] = useState(-1);
   const [playPosition, setPlayPosition] = useState<number>(-1);
   const [durationArr, setDurationArr] = useState<number[]>([
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   ]);
   const [positionArr, setPositionArr] = useState<number[]>([
     10, 8, 2, 5, 1, 6, 3, 7, 9, 4,
@@ -126,7 +131,7 @@ const Snippets = (props: Props) => {
     setLoadingStatus(false);
   };
 
-  const fetchAudio = async (
+  const generateBatchMusic = async (
     prompt: string,
     duration: string
   ): Promise<string> => {
@@ -144,6 +149,9 @@ const Snippets = (props: Props) => {
       formData,
       { responseType: "blob" }
     );
+    const url = URL.createObjectURL(new Blob([res.data]));
+    return url;
+    // -----------
     // const app = await client("nusic/MusicGen", {});
     // try {
     // const melodyBlob = await new Promise((res) => {
@@ -199,8 +207,6 @@ const Snippets = (props: Props) => {
     // } catch (e) {
     //   debugger;
     // }
-    const url = URL.createObjectURL(new Blob([res.data]));
-    return url;
   };
 
   useEffect(() => {
@@ -224,40 +230,33 @@ const Snippets = (props: Props) => {
     // positionArr.sort(() => Math.random() - 0.5);
     const renderOrder = [...positionArr].sort();
 
-    setLoadingNo(renderOrder[0]);
-    renderOrder.map(async (no, i) => {
+    // setLoadingNo(renderOrder[0]);
+    console.log(renderOrder);
+    renderOrder.map((no, i) => {
       const prompt = genreNames[i];
       // new Promise((res) => setTimeout(res, (i + 1) * 1000))
-      fetchAudio(prompt, durationArr[i].toString()).then((url) => {
-        audioListObjRef.current = {
-          ...audioListObjRef.current,
-          [no.toString()]: {
-            url,
-            // : testUrls(no - 1),
-            name: prompt,
-            color: getColorsForGroup(prompt),
-            duration: durationArr[i],
-          },
-        };
+      generateBatchMusic(prompt, durationArr[i].toString()).then((url) => {
+        // url = testUrls(no - 1);
+        if (url) {
+          console.log(`no inside: ${no}`);
+          audioListObjRef.current = {
+            ...audioListObjRef.current,
+            [no.toString()]: {
+              url,
+              name: prompt,
+              color: getColorsForGroup(prompt),
+              duration: durationArr[i],
+            },
+          };
+        } else {
+          console.error("Unable to fetch URL: ", no);
+        }
         setPrevLoadingNo(no);
-        setNewAudio(
-          // testUrls(i)
-          no.toString()
-        );
-        setLoadingNo(renderOrder[renderOrder.indexOf(no) + 1]);
+        setNewAudio(no.toString());
+        const nextAudioToLoadNo = renderOrder[renderOrder.indexOf(no) + 1];
+        console.log("Next Loading: ", nextAudioToLoadNo);
+        // setLoadingNo(nextAudioToLoadNo);
       });
-      // fetchAudio(prompt, durationArr[i].toString()).then((url) => {
-      //   audioListObjRef.current = {
-      //     ...audioListObjRef.current,
-      //     [no.toString()]: {
-      //       url: newAudio,
-      //       name: prompt,
-      //       color: getColorsForGroup(prompt),
-      //     },
-      //   };
-      // setPrevLoadingNo(3);
-
-      // });
     });
   };
 
@@ -291,7 +290,7 @@ const Snippets = (props: Props) => {
         // mt={2}
       >
         <Box display={"flex"} alignItems="center" gap={4}>
-          <FormControl sx={{ width: "200px" }} size="small">
+          <FormControl sx={{ width: "250px" }}>
             <InputLabel id="demo-simple-select-label">Machine Type</InputLabel>
             <Select
               label="Machine Type"
@@ -367,6 +366,16 @@ const Snippets = (props: Props) => {
           <IconButton onClick={refreshHfStatus}>
             <RefreshRounded fontSize="small" />
           </IconButton>
+          <Button
+            variant="outlined"
+            size="small"
+            color="info"
+            onClick={() => {
+              sonify();
+            }}
+          >
+            1st request
+          </Button>
         </Box>
         <Box display={"flex"} alignItems="center">
           <TextField
@@ -411,7 +420,7 @@ const Snippets = (props: Props) => {
               sx={{ width: 300, textTransform: "none" }}
               variant="contained"
             >
-              weezer_buddy.wav
+              {melody?.name}
             </Button>
           )}
         </Box>
@@ -455,111 +464,64 @@ const Snippets = (props: Props) => {
           >
             {positionArr.map((pos) => {
               const snippet = audioListObj[pos];
-
-              // if (loadingNo === pos) {
-              //   return (
-              //     <Box className="childComponent" key={pos}>
-              //       <Skeleton
-              //         variant="circular"
-              //         width={64}
-              //         height={64}
-              //         animation="wave"
-              //       />
-              //     </Box>
-              //   );
-              // }
-              if (snippet || loadingNo === pos) {
-                return (
-                  <Box
-                    className="childComponent"
-                    key={pos}
-                    style={{
-                      backgroundColor: snippet?.color ?? "unset",
-                      transition: "0.2s ease",
-                    }}
-                    height={loadingNo === pos ? "64px" : "140px"}
-                    width={loadingNo === pos ? "64px" : "140px"}
-                  >
-                    {snippet && playPosition === pos && (
-                      <Box
-                        position={"absolute"}
-                        height="100%"
-                        width={"100%"}
-                        borderRadius="50%"
-                        sx={{
-                          animation: "waves 2s linear infinite",
-                          animationDelay: "1s",
-                          background: snippet.color,
-                          transition: "5s ease",
-                        }}
-                      ></Box>
-                    )}
-                    {loadingNo === pos ? (
-                      <Skeleton
-                        variant="circular"
-                        width={64}
-                        height={64}
-                        animation="wave"
-                      />
-                    ) : (
-                      <Button
-                        color="secondary"
-                        sx={{
-                          height: "100%",
-                          width: "100%",
-                          borderRadius: "50%",
-                        }}
-                        onClick={() => {
-                          if (playPosition === pos) {
-                            stopPlayer();
-                            playPlayer();
-                          } else setPlayPosition(pos);
-                        }}
-                      >
-                        {snippet.name}
-                        {isTonePlaying && playPosition === pos ? (
-                          <PauseIcon />
-                        ) : (
-                          <PlayArrowRoundedIcon />
-                        )}
-                      </Button>
-                    )}
-
-                    {/* 
-                    {snippet?.url ? (
-                      
-                    ) : // <Box height={'100%'} width='100%' >
-                    //   <Typography>{audioListObj[key].name}</Typography>
-                    //   <Fab color="info" onClick={() => setPlayPosition(key)}>
-
-                    //   </Fab>
-                    // </Box>
-                    loadingNo === pos ? (
-                      <Skeleton
-                        variant="circular"
-                        width={24}
-                        height={24}
-                        animation="wave"
-                      />
-                    ) : (
-                      <Typography>.</Typography>
-                    )} */}
-                  </Box>
-                );
-              }
-
-              // if (!snippet) {
+              // if (snippet) {
               return (
-                <Box className="childComponent" key={pos}>
-                  <Skeleton
-                    variant="circular"
-                    width={24}
-                    height={24}
-                    animation="wave"
-                  />
+                <Box
+                  className="childComponent"
+                  key={pos}
+                  height={snippet ? "140px" : "24px"}
+                  width={snippet ? "140px" : "24px"}
+                  style={{
+                    backgroundColor: snippet?.color ?? "unset",
+                    transition: "0.2s ease",
+                  }}
+                >
+                  {snippet && playPosition === pos && (
+                    <Box
+                      position={"absolute"}
+                      height="100%"
+                      width={"100%"}
+                      borderRadius="50%"
+                      sx={{
+                        animation: "waves 2s linear infinite",
+                        animationDelay: "1s",
+                        background: snippet.color,
+                        transition: "5s ease",
+                      }}
+                    ></Box>
+                  )}
+                  {snippet ? (
+                    <Button
+                      color="secondary"
+                      sx={{
+                        height: "100%",
+                        width: "100%",
+                        borderRadius: "50%",
+                      }}
+                      onClick={() => {
+                        if (playPosition === pos) {
+                          stopPlayer();
+                          playPlayer();
+                        } else setPlayPosition(pos);
+                      }}
+                    >
+                      {snippet.name}
+                      {isTonePlaying && playPosition === pos ? (
+                        <PauseIcon />
+                      ) : (
+                        <PlayArrowRoundedIcon />
+                      )}
+                    </Button>
+                  ) : (
+                    <Skeleton
+                      variant="circular"
+                      width={"100%"}
+                      height={"100%"}
+                      animation="wave"
+                    />
+                  )}
                 </Box>
               );
-              // }
             })}
           </BubbleUI>
           {/* <Bubbles
