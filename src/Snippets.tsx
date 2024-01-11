@@ -276,6 +276,12 @@ const Snippets = (props: Props) => {
     refreshHfStatus();
   }, []);
 
+  useEffect(() => {
+    if (melody) {
+      playAudio(URL.createObjectURL(melody), true);
+    }
+  }, [melody]);
+
   return (
     <Box height={"90vh"} width={{ xs: "100vw", md: "unset" }}>
       <Box
@@ -331,7 +337,6 @@ const Snippets = (props: Props) => {
                 disabled={loadingStatus || hfStatus === "BUILDING"}
                 checked={hfStatus === "RUNNING" || hfStatus === "BUILDING"}
                 onChange={async (e, checked) => {
-                  debugger;
                   if (hfStatus === "RUNNING") {
                     setLoadingStatus(true);
                     await axios.post(
@@ -422,6 +427,15 @@ const Snippets = (props: Props) => {
             >
               {melody?.name}
             </Button>
+          )}
+          {melody && (
+            <IconButton
+              onClick={() => {
+                if (melody) playAudio(URL.createObjectURL(melody), true);
+              }}
+            >
+              <PlayArrowRoundedIcon />
+            </IconButton>
           )}
         </Box>
         {/* <TextField label="Prompt"></TextField> */}
