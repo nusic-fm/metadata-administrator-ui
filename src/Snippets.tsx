@@ -27,6 +27,7 @@ import "react-bubble-ui/dist/index.css";
 import { useDropzone } from "react-dropzone";
 import RefreshRounded from "@mui/icons-material/RefreshRounded";
 // import { client } from "@gradio/client";
+// import io from "socket.io-client";
 
 type Props = {};
 const getColorsForGroup = (name: string) => {
@@ -276,12 +277,6 @@ const Snippets = (props: Props) => {
     refreshHfStatus();
   }, []);
 
-  useEffect(() => {
-    if (melody) {
-      playAudio(URL.createObjectURL(melody), true);
-    }
-  }, [melody]);
-
   return (
     <Box height={"90vh"} width={{ xs: "100vw", md: "unset" }}>
       <Box
@@ -306,7 +301,7 @@ const Snippets = (props: Props) => {
               <MenuItem value={"t4-small"}>t4-small ($0.6)</MenuItem>
               <MenuItem value={"t4-medium"}>t4-medium ($0.9)</MenuItem>
               <MenuItem value={"a10g-small"}>a10g-small ($1.5)</MenuItem>
-              <MenuItem value={"a10g-medium"}>a10g-medium ($3.15)</MenuItem>
+              <MenuItem value={"a10g-large"}>a10g-large ($3.15)</MenuItem>
             </Select>
           </FormControl>
           <Button
@@ -376,7 +371,8 @@ const Snippets = (props: Props) => {
             size="small"
             color="info"
             onClick={() => {
-              sonify();
+              // await
+              // sonify();
             }}
           >
             1st request
