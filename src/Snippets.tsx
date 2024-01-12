@@ -236,8 +236,9 @@ const Snippets = (props: Props) => {
     renderOrder.map((no, i) => {
       const prompt = genreNames[i];
       // new Promise((res) => setTimeout(res, (i + 1) * 1000))
-      generateBatchMusic(prompt, durationArr[i].toString()).then((url) => {
-        // url = testUrls(no - 1);
+      // generateBatchMusic(prompt, durationArr[i].toString())
+      new Promise((res) => setTimeout(res, (i + 1) * 4000)).then(() => {
+        const url = testUrls(no - 1);
         if (url) {
           console.log(`no inside: ${no}`);
           audioListObjRef.current = {
@@ -290,7 +291,7 @@ const Snippets = (props: Props) => {
         sx={{ transition: "height 1s" }}
         // mt={2}
       >
-        <Box display={"flex"} alignItems="center" gap={4}>
+        {/* <Box display={"flex"} alignItems="center" gap={4}>
           <FormControl sx={{ width: "250px" }}>
             <InputLabel id="demo-simple-select-label">Machine Type</InputLabel>
             <Select
@@ -377,7 +378,7 @@ const Snippets = (props: Props) => {
           >
             1st request
           </Button>
-        </Box>
+        </Box> */}
         <Box display={"flex"} alignItems="center">
           <TextField
             disabled={!!melody}
