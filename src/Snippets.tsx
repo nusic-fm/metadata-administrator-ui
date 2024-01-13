@@ -25,7 +25,8 @@ import { LoadingButton } from "@mui/lab";
 import BubbleUI from "react-bubble-ui";
 import "react-bubble-ui/dist/index.css";
 import { useDropzone } from "react-dropzone";
-import RefreshRounded from "@mui/icons-material/RefreshRounded";
+// import RefreshRounded from "@mui/icons-material/RefreshRounded";
+// import { fileToBase64 } from "./utils/helper";
 // import { client } from "@gradio/client";
 // import io from "socket.io-client";
 
@@ -223,6 +224,13 @@ const Snippets = (props: Props) => {
     }
   }, [melody]);
 
+  // const onFetchAudio = async () => {
+  //   if (wssIns.current && melody) {
+  //     const base64 = await fileToBase64(melody);
+  //     const obj = { prompts: genreNames, melody: base64 };
+  //     wssIns.current.send(JSON.stringify(obj));
+  //   }
+  // };
   const onFetchAudio = async () => {
     // .sort(() => Math.random() - 0.5)
 
@@ -261,6 +269,21 @@ const Snippets = (props: Props) => {
       });
     });
   };
+  // const wssIns = useRef<WebSocket | null>(null);
+
+  // const onWssReq = () => {
+  //   if (wssIns.current) return;
+  //   const ws = new WebSocket("wss://py-websocket-ynfarb57wa-uc.a.run.appws");
+  //   wssIns.current = ws;
+  //   ws.onmessage = (e) => {
+  //     const data = e.data;
+  //     console.log({ data });
+  //     if (data instanceof Blob) {
+  //       const blob = new Blob([data], { type: "audio/wav" });
+  //       playAudio(URL.createObjectURL(blob));
+  //     }
+  //   };
+  // };
 
   useEffect(() => {
     if (newAudio) {
@@ -276,6 +299,7 @@ const Snippets = (props: Props) => {
 
   useEffect(() => {
     refreshHfStatus();
+    // onWssReq();
   }, []);
 
   return (
