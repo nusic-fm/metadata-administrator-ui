@@ -242,7 +242,7 @@ const Snippets = (props: Props) => {
       const prompt = genreNames[i];
       // new Promise((res) => setTimeout(res, (i + 1) * 1000))
       // generateBatchMusic(prompt, durationArr[i].toString());
-      new Promise((res) => setTimeout(res, (i + 1) * 4500)).then(() => {
+      new Promise((res) => setTimeout(res, (i + 1) * 6000)).then(() => {
         const url = testUrls(no - 1);
         if (url) {
           console.log(`no inside: ${no}`);

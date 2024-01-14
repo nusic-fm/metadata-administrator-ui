@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Props = {
   status: "initial" | "loading" | "playing" | "idle";
@@ -21,6 +21,7 @@ function isNumberInRange(number: number, range: number[]) {
 }
 const Pulsing = ({ status }: Props) => {
   const [frameIndex, setFrameIndex] = useState(0);
+  const reverse = useRef(false);
 
   const frameRanges = {
     loading: [
@@ -34,9 +35,8 @@ const Pulsing = ({ status }: Props) => {
     ],
   };
   const animationFrames = [
-    [0, 16],
-    [16, 8],
-    [8, 24],
+    [0, 37],
+    [38, 28],
   ];
 
   useEffect(() => {
@@ -51,18 +51,24 @@ const Pulsing = ({ status }: Props) => {
           nextIndex = 199;
         } else if (status === "loading") {
           if (isNumberInRange(prevIndex, animationFrames[0])) {
-            // If at the end, toggle between the last two indexes
-            nextIndex = prevIndex + 1;
-          } else if (isNumberInRange(prevIndex, animationFrames[0])) {
-            // Increment to the next index
-            nextIndex = prevIndex - 1;
+            if (reverse.current) {
+              if (prevIndex === animationFrames[1][1]) {
+                reverse.current = false;
+                nextIndex = prevIndex + 1;
+              } else nextIndex = prevIndex - 1;
+            } else nextIndex = prevIndex + 1;
           } else {
-            if (prevIndex === 24) {
-              nextIndex = 5;
-            } else {
-              nextIndex = prevIndex + 1;
-            }
+            reverse.current = true;
+            nextIndex = prevIndex - 1;
           }
+          console.log(`nextIndex: ${nextIndex}`);
+          //    else {
+          //     if (prevIndex === 24) {
+          //       nextIndex = 5;
+          //     } else {
+          //       nextIndex = prevIndex + 1;
+          //     }
+          //   }
         } else {
           if (prevIndex < 25 || prevIndex === 199) {
             nextIndex = 25;
@@ -70,7 +76,6 @@ const Pulsing = ({ status }: Props) => {
             nextIndex = prevIndex + 1;
           }
         }
-
         // Update the frame index and return the new value
         return nextIndex;
       });
