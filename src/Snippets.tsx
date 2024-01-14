@@ -38,7 +38,7 @@ const getColorsForGroup = (name: string) => {
     case "Pluggnb":
       return "rgb(33, 206, 175)";
     case "The Raver":
-    case "Mystical Orient":
+    case "Mystical":
     case "The Chase":
       return "rgb(58, 106, 231)";
     case "The Rocker":
@@ -52,7 +52,7 @@ const getColorsForGroup = (name: string) => {
 };
 const genreNames = [
   "House",
-  "Mystical Orient",
+  "Mystical",
   "The Raver",
   "Future Bass",
   "Pluggnb",
@@ -71,6 +71,32 @@ type SnippetProp = {
   color: string;
   position: number;
   duration: number;
+};
+
+const getColorNameFromRgb = (rgb: string) => {
+  switch (rgb) {
+    case "rgb(33, 206, 175)": // Green
+      return "green";
+    case "rgb(58, 106, 231)": // Blue
+      return "blue";
+    case "rgb(255, 130, 14)": // Orange
+      return "orange";
+    default: //"rgb(208, 43, 250)": Pink
+      return "pink";
+  }
+};
+
+const getFilterFromColor = (color: string) => {
+  switch (color) {
+    case "rgb(33, 206, 175)": // Green
+      return "invert(68%) sepia(61%) saturate(541%) hue-rotate(115deg) brightness(89%) contrast(90%)";
+    case "rgb(58, 106, 231)": // Blue
+      return "invert(33%) sepia(90%) saturate(1236%) hue-rotate(206deg) brightness(93%) contrast(94%)";
+    case "rgb(255, 130, 14)": // Green
+      return "invert(59%) sepia(100%) saturate(345%) hue-rotate(119deg) brightness(94%) contrast(89%)";
+    default: //"rgb(208, 43, 250)": Pink
+      return "invert(22%) sepia(91%) saturate(5027%) hue-rotate(277deg) brightness(118%) contrast(96%)";
+  }
 };
 
 const Snippets = (props: Props) => {
@@ -463,9 +489,9 @@ const Snippets = (props: Props) => {
         <Box mt={4} width="100%" display={"flex"} justifyContent="center">
           <BubbleUI
             options={{
-              size: 140,
-              minSize: 20,
-              gutter: 60,
+              size: 170,
+              minSize: 100,
+              gutter: 10,
               provideProps: true,
               numCols: 4,
               fringeWidth: 160,
@@ -485,11 +511,11 @@ const Snippets = (props: Props) => {
                 <Box
                   className="childComponent"
                   key={pos}
-                  height={snippet ? "140px" : "100px"}
-                  width={snippet ? "140px" : "100px"}
+                  height={snippet ? "170px" : "100px"}
+                  width={snippet ? "170px" : "100px"}
                   style={{
                     // backgroundColor: snippet?.color ?? "unset",
-                    transition: "0.2s ease",
+                    transition: "0.5s ease",
                   }}
                 >
                   {/* {snippet && playPosition === pos && ( */}
@@ -526,9 +552,9 @@ const Snippets = (props: Props) => {
                       alignItems={"center"}
                       zIndex={9999}
                       sx={{
-                        backgroundColor: snippet?.color ?? "unset",
-                        transition: "1s ease",
-                        transitionDelay: "1s",
+                        // backgroundColor: snippet?.color ?? "unset",
+                        // transition: "1s ease",
+                        // transitionDelay: "1s",
                         borderRadius: "50%",
                       }}
                     >
@@ -557,6 +583,9 @@ const Snippets = (props: Props) => {
                       )}
                     </Box>
                     <Pulsing
+                      color={getColorNameFromRgb(
+                        getColorsForGroup(genreNames[reorderArr.indexOf(pos)])
+                      )}
                       status={
                         snippet
                           ? isTonePlaying && playPosition === pos

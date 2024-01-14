@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 type Props = {
   status: "initial" | "loading" | "playing" | "idle";
+  color: string;
 };
 
 const convertToZeros = (number: number) => {
@@ -19,7 +20,7 @@ const convertToZeros = (number: number) => {
 function isNumberInRange(number: number, range: number[]) {
   return number >= range[0] && number <= range[1];
 }
-const Pulsing = ({ status }: Props) => {
+const Pulsing = ({ status, color }: Props) => {
   const [frameIndex, setFrameIndex] = useState(1);
   const reverse = useRef(false);
 
@@ -137,13 +138,19 @@ const Pulsing = ({ status }: Props) => {
   //     return () => clearInterval(interval);
   //   }, [status, frameIndex]);
 
-  const frameUrl = `/Media/00${convertToZeros(frameIndex)}.png`;
+  const frameUrl = `/media/${color}/00${convertToZeros(frameIndex)}.png`;
 
   return (
     <img
       src={frameUrl}
       alt="Pulsing Animation"
-      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        // WebkitFilter: color,
+        // transform: "scale(1.5)",
+      }}
     />
   );
 };
