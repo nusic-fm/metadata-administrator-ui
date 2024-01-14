@@ -26,6 +26,7 @@ import BubbleUI from "react-bubble-ui";
 import "react-bubble-ui/dist/index.css";
 import { useDropzone } from "react-dropzone";
 import RefreshRounded from "@mui/icons-material/RefreshRounded";
+import Pulsing from "./components/Pulsing";
 // import { client } from "@gradio/client";
 // import io from "socket.io-client";
 
@@ -112,8 +113,11 @@ const Snippets = (props: Props) => {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   ]);
   const [positionArr, setPositionArr] = useState<number[]>([
-    10, 8, 2, 5, 1, 6, 3, 7, 9, 4,
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
   ]);
+  const [reorderArr, setReorderArr] = useState<number[]>(() =>
+    [...positionArr].sort(() => Math.random() - 0.5)
+  );
 
   const [loadingStatus, setLoadingStatus] = useState(false);
   const [hfStatus, setHfStatus] = useState<string>();
@@ -229,15 +233,17 @@ const Snippets = (props: Props) => {
     // const renderOrder = positionArr.sort(() => Math.random() - 0.5);
     // [1, 2, 3, 4, 5, 6, 7, 8, 9].sort();
     // positionArr.sort(() => Math.random() - 0.5);
-    const renderOrder = [...positionArr].sort();
-
+    // const renderOrder = [...positionArr].sort(() => Math.random() - 0.5);
+    // console.log(renderOrder);
     // setLoadingNo(renderOrder[0]);
+    const renderOrder = [...reorderArr];
     console.log(renderOrder);
     renderOrder.map((no, i) => {
       const prompt = genreNames[i];
       // new Promise((res) => setTimeout(res, (i + 1) * 1000))
-      generateBatchMusic(prompt, durationArr[i].toString()).then((url) => {
-        // url = testUrls(no - 1);
+      // generateBatchMusic(prompt, durationArr[i].toString());
+      new Promise((res) => setTimeout(res, (i + 1) * 4500)).then(() => {
+        const url = testUrls(no - 1);
         if (url) {
           console.log(`no inside: ${no}`);
           audioListObjRef.current = {
@@ -459,7 +465,7 @@ const Snippets = (props: Props) => {
             options={{
               size: 140,
               minSize: 20,
-              gutter: 40,
+              gutter: 60,
               provideProps: true,
               numCols: 4,
               fringeWidth: 160,
@@ -479,14 +485,14 @@ const Snippets = (props: Props) => {
                 <Box
                   className="childComponent"
                   key={pos}
-                  height={snippet ? "140px" : "24px"}
-                  width={snippet ? "140px" : "24px"}
+                  height={snippet ? "140px" : "100px"}
+                  width={snippet ? "140px" : "100px"}
                   style={{
-                    backgroundColor: snippet?.color ?? "unset",
+                    // backgroundColor: snippet?.color ?? "unset",
                     transition: "0.2s ease",
                   }}
                 >
-                  {snippet && playPosition === pos && (
+                  {/* {snippet && playPosition === pos && (
                     <Box
                       position={"absolute"}
                       height="100%"
@@ -499,8 +505,57 @@ const Snippets = (props: Props) => {
                         transition: "5s ease",
                       }}
                     ></Box>
-                  )}
-                  {snippet ? (
+                  )} */}
+                  <Box width={"100%"} height="100%">
+                    <Box
+                      position={"absolute"}
+                      width={"100%"}
+                      height="100%"
+                      display={"flex"}
+                      justifyContent="center"
+                      alignItems={"center"}
+                      zIndex={9999}
+                    >
+                      {snippet && (
+                        <IconButton
+                          onClick={() => {
+                            if (playPosition === pos) {
+                              stopPlayer();
+                              playPlayer();
+                            } else setPlayPosition(pos);
+                          }}
+                        >
+                          {isTonePlaying && playPosition === pos ? (
+                            <PauseIcon color="secondary" />
+                          ) : (
+                            <PlayArrowRoundedIcon color="secondary" />
+                          )}
+                        </IconButton>
+                      )}
+                    </Box>
+                    <Pulsing
+                      status={
+                        snippet
+                          ? isTonePlaying && playPosition === pos
+                            ? "playing"
+                            : "idle"
+                          : reorderArr[Object.keys(audioListObj).length] === pos
+                          ? "loading"
+                          : "initial"
+                      }
+                    />
+                    {snippet && (
+                      <Box display={"flex"} justifyContent="center">
+                        <Chip
+                          label={snippet.name}
+                          variant="outlined"
+                          sx={{ color: snippet.color }}
+                          size="small"
+                        />
+                      </Box>
+                    )}
+                  </Box>
+                  {/* {snippet ? (
                     <Button
                       color="secondary"
                       sx={{
@@ -523,13 +578,15 @@ const Snippets = (props: Props) => {
                       )}
                     </Button>
                   ) : (
-                    <Skeleton
-                      variant="circular"
-                      width={"100%"}
-                      height={"100%"}
-                      animation="wave"
-                    />
-                  )}
+                    <Box width={"120px"} height="120px">
+                      <Pulsing status={reorderArr[Object.keys(audioListObj).length] === pos ? "loading" : 'initial'} />
+                    </Box>
+                    // <Typography>
+                    //   {reorderArr[Object.keys(audioListObj).length] === pos
+                    //     ? "loading"
+                    //     : "."}
+                    // </Typography>
+                  )} */}
                 </Box>
               );
             })}
