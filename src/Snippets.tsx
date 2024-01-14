@@ -26,6 +26,7 @@ import BubbleUI from "react-bubble-ui";
 import "react-bubble-ui/dist/index.css";
 import { useDropzone } from "react-dropzone";
 import RefreshRounded from "@mui/icons-material/RefreshRounded";
+import Pulsing from "./components/Pulsing";
 // import { client } from "@gradio/client";
 // import io from "socket.io-client";
 
@@ -37,7 +38,7 @@ const getColorsForGroup = (name: string) => {
     case "Pluggnb":
       return "rgb(33, 206, 175)";
     case "The Raver":
-    case "Mystical Orient":
+    case "Mystical":
     case "The Chase":
       return "rgb(58, 106, 231)";
     case "The Rocker":
@@ -51,7 +52,7 @@ const getColorsForGroup = (name: string) => {
 };
 const genreNames = [
   "House",
-  "Mystical Orient",
+  "Mystical",
   "The Raver",
   "Future Bass",
   "Pluggnb",
@@ -70,6 +71,32 @@ type SnippetProp = {
   color: string;
   position: number;
   duration: number;
+};
+
+const getColorNameFromRgb = (rgb: string) => {
+  switch (rgb) {
+    case "rgb(33, 206, 175)": // Green
+      return "green";
+    case "rgb(58, 106, 231)": // Blue
+      return "blue";
+    case "rgb(255, 130, 14)": // Orange
+      return "orange";
+    default: //"rgb(208, 43, 250)": Pink
+      return "pink";
+  }
+};
+
+const getFilterFromColor = (color: string) => {
+  switch (color) {
+    case "rgb(33, 206, 175)": // Green
+      return "invert(68%) sepia(61%) saturate(541%) hue-rotate(115deg) brightness(89%) contrast(90%)";
+    case "rgb(58, 106, 231)": // Blue
+      return "invert(33%) sepia(90%) saturate(1236%) hue-rotate(206deg) brightness(93%) contrast(94%)";
+    case "rgb(255, 130, 14)": // Green
+      return "invert(59%) sepia(100%) saturate(345%) hue-rotate(119deg) brightness(94%) contrast(89%)";
+    default: //"rgb(208, 43, 250)": Pink
+      return "invert(22%) sepia(91%) saturate(5027%) hue-rotate(277deg) brightness(118%) contrast(96%)";
+  }
 };
 
 const Snippets = (props: Props) => {
@@ -112,8 +139,11 @@ const Snippets = (props: Props) => {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   ]);
   const [positionArr, setPositionArr] = useState<number[]>([
-    10, 8, 2, 5, 1, 6, 3, 7, 9, 4,
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
   ]);
+  const [reorderArr, setReorderArr] = useState<number[]>(() =>
+    [...positionArr].sort(() => Math.random() - 0.5)
+  );
 
   const [loadingStatus, setLoadingStatus] = useState(false);
   const [hfStatus, setHfStatus] = useState<string>();
@@ -229,15 +259,18 @@ const Snippets = (props: Props) => {
     // const renderOrder = positionArr.sort(() => Math.random() - 0.5);
     // [1, 2, 3, 4, 5, 6, 7, 8, 9].sort();
     // positionArr.sort(() => Math.random() - 0.5);
-    const renderOrder = [...positionArr].sort();
-
+    // const renderOrder = [...positionArr].sort(() => Math.random() - 0.5);
+    // console.log(renderOrder);
     // setLoadingNo(renderOrder[0]);
+    const renderOrder = [...reorderArr];
     console.log(renderOrder);
     renderOrder.map((no, i) => {
       const prompt = genreNames[i];
       // new Promise((res) => setTimeout(res, (i + 1) * 1000))
+      // generateBatchMusic(prompt, durationArr[i].toString());
+      // new Promise((res) => setTimeout(res, (i + 1) * 6000))
       generateBatchMusic(prompt, durationArr[i].toString()).then((url) => {
-        // url = testUrls(no - 1);
+        // const url = testUrls(no - 1);
         if (url) {
           console.log(`no inside: ${no}`);
           audioListObjRef.current = {
@@ -457,9 +490,9 @@ const Snippets = (props: Props) => {
         <Box mt={4} width="100%" display={"flex"} justifyContent="center">
           <BubbleUI
             options={{
-              size: 140,
-              minSize: 20,
-              gutter: 40,
+              size: 170,
+              minSize: 100,
+              gutter: 10,
               provideProps: true,
               numCols: 4,
               fringeWidth: 160,
@@ -479,28 +512,103 @@ const Snippets = (props: Props) => {
                 <Box
                   className="childComponent"
                   key={pos}
-                  height={snippet ? "140px" : "24px"}
-                  width={snippet ? "140px" : "24px"}
+                  height={snippet ? "170px" : "100px"}
+                  width={snippet ? "170px" : "100px"}
                   style={{
-                    backgroundColor: snippet?.color ?? "unset",
-                    transition: "0.2s ease",
+                    // backgroundColor: snippet?.color ?? "unset",
+                    transition: "0.5s ease",
                   }}
                 >
-                  {snippet && playPosition === pos && (
+                  {/* {snippet && playPosition === pos && ( */}
+                  <Box
+                    position={"absolute"}
+                    height="100%"
+                    width={"100%"}
+                    sx={{
+                      opacity: snippet && playPosition === pos ? 1 : 0,
+                      transition: "0.5s ease",
+                      transitionDelay: "1s",
+                    }}
+                  >
                     <Box
-                      position={"absolute"}
                       height="100%"
                       width={"100%"}
                       borderRadius="50%"
                       sx={{
                         animation: "waves 2s linear infinite",
                         animationDelay: "1s",
-                        background: snippet.color,
+                        background: snippet?.color,
                         transition: "5s ease",
                       }}
-                    ></Box>
-                  )}
-                  {snippet ? (
+                    />
+                  </Box>
+                  {/* )} */}
+                  <Box width={"100%"} height="100%">
+                    <Box
+                      position={"absolute"}
+                      width={"100%"}
+                      height="100%"
+                      display={"flex"}
+                      justifyContent="center"
+                      alignItems={"center"}
+                      zIndex={9999}
+                      sx={{
+                        // backgroundColor: snippet?.color ?? "unset",
+                        // transition: "1s ease",
+                        // transitionDelay: "1s",
+                        borderRadius: "50%",
+                      }}
+                    >
+                      {snippet && (
+                        <Button
+                          color="secondary"
+                          sx={{
+                            height: "100%",
+                            width: "100%",
+                            borderRadius: "50%",
+                          }}
+                          onClick={() => {
+                            if (playPosition === pos) {
+                              stopPlayer();
+                              playPlayer();
+                            } else setPlayPosition(pos);
+                          }}
+                        >
+                          {snippet.name}
+                          {isTonePlaying && playPosition === pos ? (
+                            <PauseIcon />
+                          ) : (
+                            <PlayArrowRoundedIcon />
+                          )}
+                        </Button>
+                      )}
+                    </Box>
+                    <Pulsing
+                      color={getColorNameFromRgb(
+                        getColorsForGroup(genreNames[reorderArr.indexOf(pos)])
+                      )}
+                      status={
+                        snippet
+                          ? isTonePlaying && playPosition === pos
+                            ? "playing"
+                            : "idle"
+                          : reorderArr[Object.keys(audioListObj).length] === pos
+                          ? "loading"
+                          : "initial"
+                      }
+                    />
+                    {/* {snippet && (
+                      <Box display={"flex"} justifyContent="center">
+                        <Chip
+                          label={snippet.name}
+                          variant="outlined"
+                          sx={{ color: snippet.color }}
+                          size="small"
+                        />
+                      </Box>
+                    )} */}
+                  </Box>
+                  {/* {snippet ? (
                     <Button
                       color="secondary"
                       sx={{
@@ -523,13 +631,15 @@ const Snippets = (props: Props) => {
                       )}
                     </Button>
                   ) : (
-                    <Skeleton
-                      variant="circular"
-                      width={"100%"}
-                      height={"100%"}
-                      animation="wave"
-                    />
-                  )}
+                    <Box width={"120px"} height="120px">
+                      <Pulsing status={reorderArr[Object.keys(audioListObj).length] === pos ? "loading" : 'initial'} />
+                    </Box>
+                    // <Typography>
+                    //   {reorderArr[Object.keys(audioListObj).length] === pos
+                    //     ? "loading"
+                    //     : "."}
+                    // </Typography>
+                  )} */}
                 </Box>
               );
             })}
