@@ -492,20 +492,30 @@ const Snippets = (props: Props) => {
                     transition: "0.2s ease",
                   }}
                 >
-                  {/* {snippet && playPosition === pos && (
+                  {/* {snippet && playPosition === pos && ( */}
+                  <Box
+                    position={"absolute"}
+                    height="100%"
+                    width={"100%"}
+                    sx={{
+                      opacity: snippet && playPosition === pos ? 1 : 0,
+                      transition: "0.5s ease",
+                      transitionDelay: "1s",
+                    }}
+                  >
                     <Box
-                      position={"absolute"}
                       height="100%"
                       width={"100%"}
                       borderRadius="50%"
                       sx={{
                         animation: "waves 2s linear infinite",
                         animationDelay: "1s",
-                        background: snippet.color,
+                        background: snippet?.color,
                         transition: "5s ease",
                       }}
-                    ></Box>
-                  )} */}
+                    />
+                  </Box>
+                  {/* )} */}
                   <Box width={"100%"} height="100%">
                     <Box
                       position={"absolute"}
@@ -515,9 +525,21 @@ const Snippets = (props: Props) => {
                       justifyContent="center"
                       alignItems={"center"}
                       zIndex={9999}
+                      sx={{
+                        backgroundColor: snippet?.color ?? "unset",
+                        transition: "1s ease",
+                        transitionDelay: "1s",
+                        borderRadius: "50%",
+                      }}
                     >
                       {snippet && (
-                        <IconButton
+                        <Button
+                          color="secondary"
+                          sx={{
+                            height: "100%",
+                            width: "100%",
+                            borderRadius: "50%",
+                          }}
                           onClick={() => {
                             if (playPosition === pos) {
                               stopPlayer();
@@ -525,12 +547,13 @@ const Snippets = (props: Props) => {
                             } else setPlayPosition(pos);
                           }}
                         >
+                          {snippet.name}
                           {isTonePlaying && playPosition === pos ? (
-                            <PauseIcon color="secondary" />
+                            <PauseIcon />
                           ) : (
-                            <PlayArrowRoundedIcon color="secondary" />
+                            <PlayArrowRoundedIcon />
                           )}
-                        </IconButton>
+                        </Button>
                       )}
                     </Box>
                     <Pulsing
@@ -544,7 +567,7 @@ const Snippets = (props: Props) => {
                           : "initial"
                       }
                     />
-                    {snippet && (
+                    {/* {snippet && (
                       <Box display={"flex"} justifyContent="center">
                         <Chip
                           label={snippet.name}
@@ -553,7 +576,7 @@ const Snippets = (props: Props) => {
                           size="small"
                         />
                       </Box>
-                    )}
+                    )} */}
                   </Box>
                   {/* {snippet ? (
                     <Button

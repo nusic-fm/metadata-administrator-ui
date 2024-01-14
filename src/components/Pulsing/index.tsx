@@ -20,7 +20,7 @@ function isNumberInRange(number: number, range: number[]) {
   return number >= range[0] && number <= range[1];
 }
 const Pulsing = ({ status }: Props) => {
-  const [frameIndex, setFrameIndex] = useState(0);
+  const [frameIndex, setFrameIndex] = useState(1);
   const reverse = useRef(false);
 
   const frameRanges = {
@@ -35,20 +35,22 @@ const Pulsing = ({ status }: Props) => {
     ],
   };
   const animationFrames = [
-    [0, 37],
-    [38, 28],
+    [1, 15],
+    [16, 8],
   ];
 
   useEffect(() => {
     const interval = setInterval(() => {
       setFrameIndex((prevIndex) => {
         // Calculate the next index based on the current index
-        let nextIndex = 5;
+        let nextIndex;
 
         if (status === "initial") {
-          nextIndex = 0;
+          nextIndex = 1;
         } else if (status === "idle") {
-          nextIndex = 199;
+          if (prevIndex < 44) {
+            nextIndex = prevIndex + 1;
+          } else nextIndex = 44;
         } else if (status === "loading") {
           if (isNumberInRange(prevIndex, animationFrames[0])) {
             if (reverse.current) {
@@ -70,8 +72,8 @@ const Pulsing = ({ status }: Props) => {
           //     }
           //   }
         } else {
-          if (prevIndex < 25 || prevIndex === 199) {
-            nextIndex = 25;
+          if (prevIndex >= 44) {
+            nextIndex = 44;
           } else {
             nextIndex = prevIndex + 1;
           }
@@ -79,7 +81,7 @@ const Pulsing = ({ status }: Props) => {
         // Update the frame index and return the new value
         return nextIndex;
       });
-    }, 80);
+    }, 100);
 
     return () => clearInterval(interval);
   }, [status, frameIndex]);
@@ -135,7 +137,7 @@ const Pulsing = ({ status }: Props) => {
   //     return () => clearInterval(interval);
   //   }, [status, frameIndex]);
 
-  const frameUrl = `/Media/Circle%2010_00${convertToZeros(frameIndex)}.png`;
+  const frameUrl = `/Media/00${convertToZeros(frameIndex)}.png`;
 
   return (
     <img
