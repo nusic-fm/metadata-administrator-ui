@@ -36,8 +36,8 @@ const Pulsing = ({ status, color }: Props) => {
     ],
   };
   const animationFrames = [
-    [1, 15],
-    [16, 8],
+    [1, 75],
+    [76, 30],
   ];
 
   useEffect(() => {
@@ -46,12 +46,15 @@ const Pulsing = ({ status, color }: Props) => {
         // Calculate the next index based on the current index
         let nextIndex;
 
+        const startAt = 1;
+        const total = 202;
+
         if (status === "initial") {
-          nextIndex = 1;
+          nextIndex = startAt;
         } else if (status === "idle") {
-          if (prevIndex < 44) {
+          if (prevIndex < total) {
             nextIndex = prevIndex + 1;
-          } else nextIndex = 44;
+          } else nextIndex = total;
         } else if (status === "loading") {
           if (isNumberInRange(prevIndex, animationFrames[0])) {
             if (reverse.current) {
@@ -73,8 +76,8 @@ const Pulsing = ({ status, color }: Props) => {
           //     }
           //   }
         } else {
-          if (prevIndex >= 44) {
-            nextIndex = 44;
+          if (prevIndex >= total) {
+            nextIndex = total;
           } else {
             nextIndex = prevIndex + 1;
           }
@@ -82,7 +85,7 @@ const Pulsing = ({ status, color }: Props) => {
         // Update the frame index and return the new value
         return nextIndex;
       });
-    }, 100);
+    }, 15);
 
     return () => clearInterval(interval);
   }, [status, frameIndex]);
@@ -138,7 +141,7 @@ const Pulsing = ({ status, color }: Props) => {
   //     return () => clearInterval(interval);
   //   }, [status, frameIndex]);
 
-  const frameUrl = `/media/${color}/00${convertToZeros(frameIndex)}.png`;
+  const frameUrl = `/media/${color}/frame_${convertToZeros(frameIndex)}.png`;
 
   return (
     <img

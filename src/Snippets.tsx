@@ -92,7 +92,7 @@ const getFilterFromColor = (color: string) => {
       return "invert(68%) sepia(61%) saturate(541%) hue-rotate(115deg) brightness(89%) contrast(90%)";
     case "rgb(58, 106, 231)": // Blue
       return "invert(33%) sepia(90%) saturate(1236%) hue-rotate(206deg) brightness(93%) contrast(94%)";
-    case "rgb(255, 130, 14)": // Green
+    case "rgb(255, 130, 14)": // Orange
       return "invert(59%) sepia(100%) saturate(345%) hue-rotate(119deg) brightness(94%) contrast(89%)";
     default: //"rgb(208, 43, 250)": Pink
       return "invert(22%) sepia(91%) saturate(5027%) hue-rotate(277deg) brightness(118%) contrast(96%)";
@@ -269,8 +269,9 @@ const Snippets = (props: Props) => {
       // new Promise((res) => setTimeout(res, (i + 1) * 1000))
       // generateBatchMusic(prompt, durationArr[i].toString());
       // new Promise((res) => setTimeout(res, (i + 1) * 6000))
-      generateBatchMusic(prompt, durationArr[i].toString()).then((url) => {
-        // const url = testUrls(no - 1);
+      // generateBatchMusic(prompt, durationArr[i].toString());
+      new Promise((res) => setTimeout(res, (i + 1) * 4000)).then(() => {
+        const url = testUrls(no - 1);
         if (url) {
           console.log(`no inside: ${no}`);
           audioListObjRef.current = {
