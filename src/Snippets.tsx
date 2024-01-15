@@ -37,7 +37,7 @@ const getColorsForGroup = (name: string) => {
     case "Pluggnb":
       return "rgb(33, 206, 175)";
     case "The Raver":
-    case "Mystical Orient":
+    case "Mystical":
     case "The Chase":
       return "rgb(58, 106, 231)";
     case "The Rocker":
@@ -51,7 +51,7 @@ const getColorsForGroup = (name: string) => {
 };
 const genreNames = [
   "House",
-  "Mystical Orient",
+  "Mystical",
   "The Raver",
   "Future Bass",
   "Pluggnb",
@@ -72,6 +72,18 @@ type SnippetProp = {
   duration: number;
 };
 
+const getColorNameFromRgb = (rgb: string) => {
+  switch (rgb) {
+    case "rgb(33, 206, 175)": // Green
+      return "green";
+    case "rgb(58, 106, 231)": // Blue
+      return "blue";
+    case "rgb(255, 130, 14)": // Orange
+      return "orange";
+    default: //"rgb(208, 43, 250)": Pink
+      return "pink";
+  }
+};
 const Snippets = (props: Props) => {
   const [melody, setMelody] = useState<File>();
 
@@ -112,8 +124,11 @@ const Snippets = (props: Props) => {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
   ]);
   const [positionArr, setPositionArr] = useState<number[]>([
-    10, 8, 2, 5, 1, 6, 3, 7, 9, 4,
+    1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
   ]);
+  const [reorderArr, setReorderArr] = useState<number[]>(() =>
+    [...positionArr].sort(() => Math.random() - 0.5)
+  );
 
   const [loadingStatus, setLoadingStatus] = useState(false);
   const [hfStatus, setHfStatus] = useState<string>();
@@ -229,15 +244,16 @@ const Snippets = (props: Props) => {
     // const renderOrder = positionArr.sort(() => Math.random() - 0.5);
     // [1, 2, 3, 4, 5, 6, 7, 8, 9].sort();
     // positionArr.sort(() => Math.random() - 0.5);
-    const renderOrder = [...positionArr].sort();
+    // const renderOrder = [...positionArr].sort(() => Math.random() - 0.5);
 
     // setLoadingNo(renderOrder[0]);
+    const renderOrder = [...reorderArr];
     console.log(renderOrder);
     renderOrder.map((no, i) => {
       const prompt = genreNames[i];
       // new Promise((res) => setTimeout(res, (i + 1) * 1000))
       generateBatchMusic(prompt, durationArr[i].toString()).then((url) => {
-        // url = testUrls(no - 1);
+        // const url = testUrls(no - 1);
         if (url) {
           console.log(`no inside: ${no}`);
           audioListObjRef.current = {
